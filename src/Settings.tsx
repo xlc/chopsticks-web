@@ -98,9 +98,6 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
     const unsub: any = apiAt?.query.system.number((val: any) =>
       setConnectionStatus(`Connected: ${name} @ ${val}`),
     )
-    if (apiAt) {
-      onConnect(apiAt)
-    }
     return () => {
       const f = async () => {
         const u = await unsub
@@ -109,6 +106,12 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
       f()
     }
   }, [apiAt])
+
+  useEffect(() => {
+    if (apiAt) {
+      onConnect(apiAt)
+    }
+  }, [apiAt, onConnect])
 
   useEffect(() => {
     onFinish({ endpoint, blockHeight })
