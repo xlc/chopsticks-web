@@ -1,11 +1,16 @@
 import { useState } from 'react'
-import './App.css'
+import { ApiDecoration } from '@polkadot/api/types'
+
+import Settings from './Settings'
 
 function App() {
+  const [api, setApi] = useState<ApiDecoration<'promise'>>()
+
+  void api
   return (
-    <>
-      <div>test</div>
-    </>
+    <div>
+      <Settings onConnect={setApi} />
+    </div>
   )
 }
 
