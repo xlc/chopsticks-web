@@ -9,7 +9,8 @@
     "preview": "bunx --bun vite preview",
     "lint": "tsc --noEmit --project tsconfig.lint.json && eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && prettier --check .",
     "fix": "eslint . --ext .ts,.tsx --fix && prettier -w .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "bunx patch-package"
   },
   "dependencies": {
     "@acala-network/chopsticks-core": "^0.9.5",
@@ -46,5 +47,9 @@
   "lint-staged": {
     "*.{ts,tsx}": "eslint --cache --fix",
     "*.{js,css,md}": "prettier --write"
+  },
+  "resolutions": {
+    "@acala-network/chopsticks-core@^0.9.5": "patch:@acala-network/chopsticks-core@npm%3A0.9.5#./.yarn/patches/@acala-network-chopsticks-core-npm-0.9.5-48faffeb77.patch",
+    "@acala-network/chopsticks-core@0.9.5": "patch:@acala-network/chopsticks-core@npm%3A0.9.5#./.yarn/patches/@acala-network-chopsticks-core-npm-0.9.5-48faffeb77.patch"
   }
 }

@@ -5,7 +5,8 @@ import { Button, Form, Input, Typography } from 'antd'
 import { setStorage, setup } from '@acala-network/chopsticks-core'
 import { IdbDatabase } from '@acala-network/chopsticks-db/browser'
 
-import '@acala-network/chopsticks-core/wasm-executor/browser-wasm-executor'
+// TODO: workaround chopsticks issue on web worker
+import '@acala-network/chopsticks-core/wasm-executor/browser-wasm-executor?worker&url'
 
 export type DryRunProps = {
   api: Api
