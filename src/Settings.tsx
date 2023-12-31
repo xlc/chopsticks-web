@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import useLocalStorage from '@rehooks/local-storage'
-import { AutoComplete, Button, Card, Form, Typography } from 'antd'
+import { AutoComplete, Button, Form, Typography } from 'antd'
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { ApiDecoration } from '@polkadot/api/types'
 import _ from 'lodash'
+
+import { Api } from './types'
 
 const endpoints = [
   'wss://rpc.polkadot.io',
@@ -20,14 +21,14 @@ const blockHeightOptions = [
 ]
 
 export type SettingsProps = {
-  onConnect: (api: ApiDecoration<'promise'>) => void
+  onConnect: (api?: Api) => void
 }
 
 const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   const [endpoint, setEndpoint] = useLocalStorage('endpoint')
   const [blockHeight, setBlockHeight] = useLocalStorage('blockHeight')
   const [api, setApi] = useState<ApiPromise>()
-  const [apiAt, setApiAt] = useState<ApiDecoration<'promise'>>()
+  const [apiAt, setApiAt] = useState<Api>()
   const [connectionStatus, setConnectionStatus] = useState<string>()
 
   const endpointOptions = useMemo(() => {
@@ -74,6 +75,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
       }
       setConnectionStatus('Connecting...')
 
+      // TODO: figure why this is called multiple times and ensure we don't create extra connections
       const wsProvider = new WsProvider(newEndpoint)
       const newApi = await ApiPromise.create({ provider: wsProvider })
       setApi(newApi)
@@ -95,9 +97,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
 
   useEffect(() => {
     const name = _.capitalize(apiAt?.runtimeVersion.specName.toString())
-    const unsub: any = apiAt?.query.system.number((val: any) =>
-      setConnectionStatus(`Connected: ${name} @ ${val}`),
-    )
+    const unsub: any = apiAt?.query.system.number((val: any) => setConnectionStatus(`Connected: ${name} @ ${val}`))
     return () => {
       const f = async () => {
         const u = await unsub
@@ -108,46 +108,43 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   }, [apiAt])
 
   useEffect(() => {
-    if (apiAt) {
-      onConnect(apiAt)
-    }
+    onConnect(apiAt)
   }, [apiAt, onConnect])
 
   useEffect(() => {
     onFinish({ endpoint, blockHeight })
-  })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
-    <Card title="Settings">
-      <Form layout="inline" onFinish={onFinish}>
-        <Form.Item
-          label="endpoint"
-          name="endpoint"
-          required
-          initialValue={endpoint}
-          rules={[{ pattern: /^wss?:\/\//, message: 'Not a valid WebSocket endpoint' }]}
-        >
-          <AutoComplete style={{ minWidth: 300 }} options={endpointOptions} />
-        </Form.Item>
-        <Form.Item
-          label="block height"
-          name="blockHeight"
-          required
-          initialValue={blockHeight}
-          rules={[{ validator: blockHeightValidator }]}
-        >
-          <AutoComplete style={{ minWidth: 100 }} options={blockHeightOptions} />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Connect
-          </Button>
-        </Form.Item>
-        <Form.Item>
-          <Typography.Text>{connectionStatus}</Typography.Text>
-        </Form.Item>
-      </Form>
-    </Card>
+    <Form layout="inline" onFinish={onFinish}>
+      <Form.Item
+        label="endpoint"
+        name="endpoint"
+        required
+        initialValue={endpoint}
+        rules={[{ pattern: /^wss?:\/\//, message: 'Not a valid WebSocket endpoint' }]}
+      >
+        <AutoComplete style={{ minWidth: 300 }} options={endpointOptions} />
+      </Form.Item>
+      <Form.Item
+        label="block height"
+        name="blockHeight"
+        required
+        initialValue={blockHeight}
+        rules={[{ validator: blockHeightValidator }]}
+      >
+        <AutoComplete style={{ minWidth: 100 }} options={blockHeightOptions} />
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          Connect
+        </Button>
+      </Form.Item>
+      <Form.Item>
+        <Typography.Text>{connectionStatus}</Typography.Text>
+      </Form.Item>
+    </Form>
   )
 }
 
