@@ -2,9 +2,9 @@ import React, { useEffect } from 'react'
 
 import { Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
+import styled from 'styled-components'
 
 import { Api } from './types'
-import styled from 'styled-components'
 
 export type PreimagesProps = {
   api: Api

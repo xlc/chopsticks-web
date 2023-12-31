@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@acala-network/chopsticks-core": "^0.9.5",
+    "@acala-network/chopsticks-db": "^0.9.5",
     "@polkadot/api": "^10.11.2",
     "@rehooks/local-storage": "^2.4.5",
     "antd": "^5.12.5",

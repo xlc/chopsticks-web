@@ -21,7 +21,7 @@ const blockHeightOptions = [
 ]
 
 export type SettingsProps = {
-  onConnect: (api?: Api) => void
+  onConnect: (api?: Api, endpoint?: string) => void
 }
 
 const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
@@ -108,8 +108,12 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   }, [apiAt])
 
   useEffect(() => {
-    onConnect(apiAt)
-  }, [apiAt, onConnect])
+    if (apiAt) {
+      onConnect(apiAt, endpoint || undefined)
+    } else {
+      onConnect(undefined, undefined)
+    }
+  }, [apiAt, endpoint, onConnect])
 
   useEffect(() => {
     onFinish({ endpoint, blockHeight })
