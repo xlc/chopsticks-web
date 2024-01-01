@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-import { Table } from 'antd'
+import { Button, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import styled from 'styled-components'
 
@@ -8,6 +8,7 @@ import { Api } from './types'
 
 export type PreimagesProps = {
   api: Api
+  onDryRunPreimage: (hex: string) => void
 }
 
 type Preimage = {
@@ -34,29 +35,7 @@ const ArgsCell = styled.pre`
   font-size: small;
 `
 
-const columns: ColumnsType<Preimage> = [
-  {
-    title: 'Hash',
-    dataIndex: 'hash',
-    render: (hash: string) => <HexCell>{hash}</HexCell>,
-  },
-  {
-    title: 'Hex',
-    dataIndex: 'hex',
-    render: (hex: string) => <HexCell>{hex}</HexCell>,
-  },
-  {
-    title: 'Method',
-    dataIndex: 'method',
-  },
-  {
-    title: 'Args',
-    dataIndex: 'args',
-    render: (args: string) => <p>{args}</p>,
-  },
-]
-
-const Preimages: React.FC<PreimagesProps> = ({ api }) => {
+const Preimages: React.FC<PreimagesProps> = ({ api, onDryRunPreimage }) => {
   const [preimages, setPreimages] = React.useState<Preimage[]>()
 
   useEffect(() => {
@@ -98,6 +77,32 @@ const Preimages: React.FC<PreimagesProps> = ({ api }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const columns: ColumnsType<Preimage> = [
+    {
+      title: 'Hash',
+      dataIndex: 'hash',
+      render: (hash: string) => <HexCell>{hash}</HexCell>,
+    },
+    {
+      title: 'Hex',
+      dataIndex: 'hex',
+      render: (hex: string) => <HexCell>{hex}</HexCell>,
+    },
+    {
+      title: 'Method',
+      dataIndex: 'method',
+    },
+    {
+      title: 'Args',
+      dataIndex: 'args',
+      render: (args: string) => <p>{args}</p>,
+    },
+    {
+      dataIndex: 'hex',
+      render: (hex: string) => <Button onClick={() => onDryRunPreimage(hex)}>Dry Run</Button>,
+    },
+  ]
 
   return (
     <Table

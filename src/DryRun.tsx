@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { Button, Divider, Form, Input, Spin, Typography } from 'antd'
 import { decodeBlockStorageDiff, setStorage, setup, Block } from '@acala-network/chopsticks-core'
@@ -31,6 +31,7 @@ if (import.meta.env.DEV) {
 export type DryRunProps = {
   api: Api
   endpoint: string
+  preimage?: string
 }
 
 const rootOrigin = { system: 'Root' }
@@ -43,7 +44,8 @@ const parseJson = (value: string) => {
   }
 }
 
-const DryRun: React.FC<DryRunProps> = ({ api, endpoint }) => {
+const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimage }) => {
+  const [form] = Form.useForm()
   const [message, setMessage] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
   const [storageDiff, setStorageDiff] = useState<Awaited<ReturnType<typeof decodeStorageDiff>>>()
@@ -103,9 +105,13 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint }) => {
     [api, endpoint, setIsLoading, setMessage, setStorageDiff],
   )
 
+  useEffect(() => {
+    form.setFieldValue('preimage', defaultPreimage)
+  }, [defaultPreimage, form])
+
   return (
     <div>
-      <Form onFinish={onFinish} disabled={isLoading}>
+      <Form form={form} onFinish={onFinish} disabled={isLoading}>
         <Form.Item
           label="preimage"
           name="preimage"
