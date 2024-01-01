@@ -28,7 +28,7 @@ const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage, referendaP
 
   useEffect(() => {
     setEnabled(!!api.query[referendaPallet])
-  }, [api])
+  }, [api, referendaPallet])
 
   useEffect(() => {
     if (!enabled) {
