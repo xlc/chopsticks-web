@@ -40,7 +40,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   }, [endpoint])
 
   const blockHeightValidator = useCallback(async (_rule: any, value: string) => {
-    if (value === 'latest') {
+    if (value === 'latest' || value === 'initial') {
       return
     } else {
       const blockHeight = parseInt(value)
@@ -84,12 +84,19 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
       if (newBlockHeight === 'latest') {
         setApiAt(newApi)
       } else {
-        try {
-          const blockHash = await newApi.rpc.chain.getBlockHash(newBlockHeight)
-          setApiAt(await newApi.at(blockHash))
-        } catch (error) {
-          setBlockHeight('latest')
-          setConnectionStatus('Block height not found')
+        if (newBlockHeight === 'initial') {
+          const blockHash = await newApi.rpc.chain.getBlockHash()
+          const newApiAt = await newApi.at(blockHash)
+          setApiAt(newApiAt)
+          setBlockHeight((await newApiAt.query.system.number()).toString())
+        } else {
+          try {
+            const blockHash = await newApi.rpc.chain.getBlockHash(newBlockHeight)
+            setApiAt(await newApi.at(blockHash))
+          } catch (error) {
+            setBlockHeight('latest')
+            setConnectionStatus('Block height not found')
+          }
         }
       }
     },
@@ -119,7 +126,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   useEffect(() => {
     onFinish({
       endpoint: endpoint ?? endpoints[0],
-      blockHeight: blockHeight ?? 'latest',
+      blockHeight: blockHeight ?? 'initial',
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -130,7 +137,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
         label="endpoint"
         name="endpoint"
         required
-        initialValue={endpoint}
+        initialValue={endpoint ?? endpoints[0]}
         rules={[{ pattern: /^wss?:\/\//, message: 'Not a valid WebSocket endpoint' }]}
       >
         <AutoComplete style={{ minWidth: 300 }} options={endpointOptions} />
@@ -139,7 +146,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
         label="block height"
         name="blockHeight"
         required
-        initialValue={blockHeight}
+        initialValue={blockHeight ?? 'latest'}
         rules={[{ validator: blockHeightValidator }]}
       >
         <AutoComplete style={{ minWidth: 100 }} options={blockHeightOptions} />
