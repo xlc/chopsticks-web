@@ -31,7 +31,7 @@ if (import.meta.env.DEV) {
 export type DryRunProps = {
   api: Api
   endpoint: string
-  preimage?: string
+  preimage?: { hex: string; origin: any }
 }
 
 const rootOrigin = { system: 'Root' }
@@ -106,7 +106,8 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
   )
 
   useEffect(() => {
-    form.setFieldValue('preimage', defaultPreimage)
+    form.setFieldValue('preimage', defaultPreimage?.hex)
+    form.setFieldValue('origin', JSON.stringify(defaultPreimage?.origin || rootOrigin))
   }, [defaultPreimage, form])
 
   return (

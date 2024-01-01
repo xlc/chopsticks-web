@@ -1,16 +1,18 @@
 import { useCallback, useState } from 'react'
 import { Collapse, CollapseProps, Spin } from 'antd'
 
+import type { Api } from './types'
+
 import Settings from './Settings'
 import Preimages from './Preimages'
 import DryRun from './DryRun'
-import { Api } from './types'
+import Referenda from './Referenda'
 
 function App() {
   const [api, setApi] = useState<Api>()
   const [endpoint, setEndpoint] = useState<string>()
   const [activeKey, setActiveKey] = useState<string[]>(['settings'])
-  const [preimage, setPreimage] = useState<string>()
+  const [preimage, setPreimage] = useState<{ hex: string; origin: any }>()
 
   const onConnect = useCallback(
     (api?: Api, endpoint?: string) => {
@@ -21,17 +23,13 @@ function App() {
   )
 
   const onDryRunPreimage = useCallback(
-    (hex: string) => {
-      const newKeys = [...activeKey]
-      const preimagesIndex = newKeys.indexOf('preimages')
-      if (preimagesIndex >= 0) {
-        newKeys.splice(preimagesIndex, 1)
-      }
+    (hex: string, origin?: any) => {
+      const newKeys = [...activeKey].filter((key) => key === 'settings' || key === 'dryrun')
       if (newKeys.indexOf('dryrun') < 0) {
         newKeys.push('dryrun')
       }
       setActiveKey(newKeys)
-      setPreimage(hex)
+      setPreimage({ hex, origin })
     },
     [activeKey, setActiveKey],
   )
@@ -53,6 +51,12 @@ function App() {
       key: 'preimages',
       label: 'Preimages',
       children: api ? <Preimages api={api} onDryRunPreimage={onDryRunPreimage} /> : <Spin spinning={true} />,
+    },
+    {
+      key: 'referenda',
+      label: 'Referenda',
+      children:
+        api && endpoint ? <Referenda api={api} onDryRunPreimage={onDryRunPreimage} /> : <Spin spinning={true} />,
     },
     {
       key: 'dryrun',

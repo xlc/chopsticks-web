@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { Button, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -36,7 +36,7 @@ const ArgsCell = styled.pre`
 `
 
 const Preimages: React.FC<PreimagesProps> = ({ api, onDryRunPreimage }) => {
-  const [preimages, setPreimages] = React.useState<Preimage[]>()
+  const [preimages, setPreimages] = useState<Preimage[]>()
 
   useEffect(() => {
     let canceled = false
