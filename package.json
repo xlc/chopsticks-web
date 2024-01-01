@@ -4,13 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "bunx --bun vite",
+    "dev": "bunx patch-package && bunx --bun vite",
     "build": "tsc && bunx --bun vite build",
     "preview": "bunx --bun vite preview",
     "lint": "tsc --noEmit --project tsconfig.lint.json && eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 && prettier --check .",
     "fix": "eslint . --ext .ts,.tsx --fix && prettier -w .",
-    "prepare": "husky install",
-    "postinstall": "bunx patch-package"
+    "prepare": "husky install"
   },
   "dependencies": {
     "@acala-network/chopsticks-core": "^0.9.5",

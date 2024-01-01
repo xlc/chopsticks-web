@@ -64,14 +64,15 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
         return
       }
 
+      setEndpoint(newEndpoint)
+      setBlockHeight(newBlockHeight)
+
       if (updateApi && api !== undefined) {
         api.disconnect()
         setApi(undefined)
-        setEndpoint(newEndpoint)
       }
       if (updateApiAt && apiAt !== undefined) {
         setApiAt(undefined)
-        setBlockHeight(newBlockHeight)
       }
       setConnectionStatus('Connecting...')
 
@@ -116,7 +117,10 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   }, [apiAt, endpoint, onConnect])
 
   useEffect(() => {
-    onFinish({ endpoint, blockHeight })
+    onFinish({
+      endpoint: endpoint ?? endpoints[0],
+      blockHeight: blockHeight ?? 'latest',
+     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

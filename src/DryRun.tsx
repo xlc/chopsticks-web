@@ -24,7 +24,7 @@ const decodeStorageDiff = async (block: Block, diff: [string, string | null][]) 
 }
 
 // TODO: workaround chopsticks issue on web worker
-import '@acala-network/chopsticks-core/wasm-executor/browser-wasm-executor?worker&url'
+// import '@acala-network/chopsticks-core/wasm-executor/browser-wasm-executor?worker&url'
 
 export type DryRunProps = {
   api: Api
