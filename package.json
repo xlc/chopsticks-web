@@ -47,7 +47,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --cache --fix",
-    "*.{js,css,md}": "prettier --write"
+    "*.{ts,tsx,js,css,md}": "prettier --write"
   },
   "resolutions": {
     "@acala-network/chopsticks-core@^0.9.5": "patch:@acala-network/chopsticks-core@npm%3A0.9.5#./.yarn/patches/@acala-network-chopsticks-core-npm-0.9.5-48faffeb77.patch",
