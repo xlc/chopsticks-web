@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import _ from 'lodash'
 import { Button, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import styled from 'styled-components'
 
 import { Api } from './types'
+import { ArgsCell, CompactArgsCell, HexCell } from './components'
 
 export type ReferendaProps = {
   api: Api
@@ -21,22 +21,6 @@ type Referendum = {
   method?: string
   args?: any
 }
-
-const HexCell = styled.div`
-  max-width: 100px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`
-
-const ArgsCell = styled.pre`
-  overflow: scroll;
-  background: #f3f3f3;
-  margin: -0.5rem;
-  border-radius: 0.2rem;
-  padding: 0.2rem;
-  font-size: small;
-`
 
 const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage, referendaPallet }) => {
   const [referendum, setReferendum] = useState<Referendum[]>()
@@ -149,7 +133,7 @@ const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage, referendaP
     {
       title: 'Args',
       dataIndex: 'args',
-      render: (args: string) => <p>{args}</p>,
+      render: (args: string) => <CompactArgsCell>{args}</CompactArgsCell>,
     },
     {
       dataIndex: 'hex',
