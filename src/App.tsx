@@ -52,26 +52,34 @@ function App() {
       label: 'Preimages',
       children: api ? <Preimages api={api} onDryRunPreimage={onDryRunPreimage} /> : <Spin spinning={true} />,
     },
-    {
-      key: 'referenda',
-      label: 'Referenda',
-      children:
-        api && endpoint ? (
-          <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="referenda" />
-        ) : (
-          <Spin spinning={true} />
-        ),
-    },
-    {
-      key: 'fellowship-referenda',
-      label: 'Fellowship Referenda',
-      children:
-        api && endpoint ? (
-          <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="fellowshipReferenda" />
-        ) : (
-          <Spin spinning={true} />
-        ),
-    },
+    ...(api?.query.referenda
+      ? [
+          {
+            key: 'referenda',
+            label: 'Referenda',
+            children:
+              api && endpoint ? (
+                <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="referenda" />
+              ) : (
+                <Spin spinning={true} />
+              ),
+          },
+        ]
+      : []),
+    ...(api?.query.fellowshipReferenda
+      ? [
+          {
+            key: 'fellowship-referenda',
+            label: 'Fellowship Referenda',
+            children:
+              api && endpoint && api.query.fellowshipReferenda ? (
+                <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="fellowshipReferenda" />
+              ) : (
+                <Spin spinning={true} />
+              ),
+          },
+        ]
+      : []),
     {
       key: 'dryrun',
       label: 'Dry Run',
