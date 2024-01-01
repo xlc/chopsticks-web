@@ -128,8 +128,9 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
           </Button>
         </Form.Item>
         <Form.Item>
-          <Typography.Text>{message}</Typography.Text>
           <Spin spinning={isLoading} />
+          &nbsp;&nbsp;
+          <Typography.Text>{message}</Typography.Text>
         </Form.Item>
       </Form>
       <Divider />
