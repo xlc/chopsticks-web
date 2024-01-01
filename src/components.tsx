@@ -18,4 +18,6 @@ export const ArgsCell = styled.pre`
 
 export const CompactArgsCell = styled.p`
   word-break: break-all;
+  max-height: 200px;
+  overflow: scroll;
 `
