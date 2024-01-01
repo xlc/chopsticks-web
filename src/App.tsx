@@ -56,7 +56,21 @@ function App() {
       key: 'referenda',
       label: 'Referenda',
       children:
-        api && endpoint ? <Referenda api={api} onDryRunPreimage={onDryRunPreimage} /> : <Spin spinning={true} />,
+        api && endpoint ? (
+          <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="referenda" />
+        ) : (
+          <Spin spinning={true} />
+        ),
+    },
+    {
+      key: 'fellowship-referenda',
+      label: 'Fellowship Referenda',
+      children:
+        api && endpoint ? (
+          <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="fellowshipReferenda" />
+        ) : (
+          <Spin spinning={true} />
+        ),
     },
     {
       key: 'dryrun',

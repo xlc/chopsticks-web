@@ -9,6 +9,7 @@ import { Api } from './types'
 export type ReferendaProps = {
   api: Api
   onDryRunPreimage: (hex: string, origin: any) => void
+  referendaPallet: string
 }
 
 type Referendum = {
@@ -37,12 +38,12 @@ const ArgsCell = styled.pre`
   font-size: small;
 `
 
-const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage }) => {
+const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage, referendaPallet }) => {
   const [referendum, setReferendum] = useState<Referendum[]>()
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
-    setEnabled(!!api.query.referenda)
+    setEnabled(!!api.query[referendaPallet])
   }, [api])
 
   useEffect(() => {
@@ -51,12 +52,12 @@ const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage }) => {
     }
     let canceled = false
     const fn = async () => {
-      const referendum = await api.query.referenda.referendumInfoFor.entries()
+      const referendum = await api.query[referendaPallet].referendumInfoFor.entries()
       if (canceled) {
         return
       }
 
-      const tracks = api.consts.referenda.tracks as any
+      const tracks = api.consts[referendaPallet].tracks as any
 
       const processed = await Promise.all(
         referendum.map(async ([key, data]) => {
