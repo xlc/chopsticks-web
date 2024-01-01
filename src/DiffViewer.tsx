@@ -56,42 +56,30 @@ const theme = {
 }
 
 const DiffSpan = styled.span`
-  .diff {
-    padding: 2px 4px;
-    border-radius: 4px;
-    position: relative;
-    color: white;
-    line-height: 150%;
-  }
+  padding: 2px 4px;
+  border-radius: 4px;
+  position: relative;
+  line-height: 150%;
 
-  .diff > button {
-    position: absolute;
-    display: none;
-    left: 50%;
-    top: 50%;
-    translate: -50% -50%;
-    background: #fff;
+  & > button {
     border: none;
-    border-radius: 50%;
-    padding: 10px;
+    border-radius: 6px;
+    padding: 6px;
     cursor: pointer;
     cursor: pointer;
-    opacity: 80%;
-    width: 40px;
-    height: 40px;
+    opacity: 60%;
+    width: 26px;
+    height: 26px;
+    margin-left: 10px;
   }
 
-  .diff > button > img {
+  & > button > img {
     width: 100%;
     height: 100%;
   }
 
-  .diff > button:hover {
+  & > button:hover {
     opacity: 100%;
-  }
-
-  .diff:hover > button {
-    display: block;
   }
 
   li:has(> span > span.diffWrap > span.diffRemove) > label {
@@ -100,39 +88,39 @@ const DiffSpan = styled.span`
     text-decoration-thickness: 1px;
   }
 
-  .diffAdd {
-    color: darkseagreen;
+  &.diffAdd {
+    color: #428442;
     display: inline-flex;
   }
 
-  .diffRemove {
+  &.diffRemove {
     text-decoration: line-through;
     text-decoration-thickness: 1px;
     color: red;
     display: inline-flex;
   }
 
-  .diffUpdateFrom {
+  &.diffUpdateFrom {
     text-decoration: line-through;
     text-decoration-thickness: 1px;
     color: red;
     display: inline-flex;
   }
 
-  .diffUpdateTo {
-    color: darkseagreen;
+  &.diffUpdateTo {
+    color: #428442;
     display: inline-flex;
   }
 
-  .diffUpdateArrow {
+  &.diffUpdateArrow {
     color: #ccc;
   }
 
-  .unchanged {
+  &.unchanged {
     color: #666;
   }
 
-  .delta {
+  &.delta {
     color: #ccc;
     font-size: 12px;
     margin: 0 10px;
@@ -142,6 +130,14 @@ const DiffSpan = styled.span`
 const DiffWrapSpan = styled.span`
   position: relative;
   z-index: 1;
+`
+
+const PartialViewer = styled.div`
+  min-width: 300px;
+`
+
+const MainViewer = styled.div`
+  width: 80%;
 `
 
 const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta }) => {
@@ -221,14 +217,12 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta }) => {
   return (
     <div>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <div>
+        <MainViewer>
           <input type="checkbox" onChange={toggleState} id="show_unchanged" />
-          <label htmlFor="show_unchanged">
-            Show Unchanged
-          </label>
+          <label htmlFor="show_unchanged">Show Unchanged</label>
           <JSONTree
             theme={theme}
-            invertTheme={false}
+            invertTheme={true}
             data={showUnchanged ? _.merge(_.cloneDeep(oldState), delta) : delta}
             valueRenderer={valueRenderer(viewPartial)}
             postprocessValue={prepareDelta}
@@ -236,17 +230,11 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta }) => {
             shouldExpandNodeInitially={expandFirstLevel}
             hideRoot
           />
-        </div>
+        </MainViewer>
         {partial ? (
-          <div>
-            <JSONTree
-              theme={theme}
-              invertTheme={true}
-              data={partial}
-              shouldExpandNodeInitially={() => true}
-              hideRoot
-            />
-          </div>
+          <PartialViewer>
+            <JSONTree theme={theme} invertTheme={true} data={partial} shouldExpandNodeInitially={() => true} hideRoot />
+          </PartialViewer>
         ) : null}
       </div>
     </div>

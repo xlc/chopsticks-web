@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 
-import { Button, Divider, Form, Input, Typography } from 'antd'
+import { Button, Divider, Form, Input, Spin, Typography } from 'antd'
 import { decodeBlockStorageDiff, setStorage, setup, Block } from '@acala-network/chopsticks-core'
 import { IdbDatabase } from '@acala-network/chopsticks-db/browser'
 import { create } from 'jsondiffpatch'
@@ -121,6 +121,7 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint }) => {
         </Form.Item>
         <Form.Item>
           <Typography.Text>{message}</Typography.Text>
+          <Spin spinning={isLoading} />
         </Form.Item>
       </Form>
       <Divider />
