@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Collapse, CollapseProps } from 'antd'
+import { Collapse, CollapseProps, Spin } from 'antd'
 
 import Settings from './Settings'
 import Preimages from './Preimages'
@@ -27,12 +27,12 @@ function App() {
     {
       key: 'preimages',
       label: 'Preimages',
-      children: api && <Preimages api={api} />,
+      children: api ? <Preimages api={api} /> : <Spin spinning={true} />,
     },
     {
       key: 'dryrun',
       label: 'Dry Run',
-      children: api && endpoint && <DryRun api={api} endpoint={endpoint} />,
+      children: api && endpoint ? <DryRun api={api} endpoint={endpoint} /> : <Spin spinning={true} />,
     },
   ]
 
