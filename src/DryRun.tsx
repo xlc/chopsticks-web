@@ -23,8 +23,10 @@ const decodeStorageDiff = async (block: Block, diff: [string, string | null][]) 
   return { oldState, newState, delta: diffPatcher.diff(oldStateWithoutEvents, newState) }
 }
 
-// TODO: workaround chopsticks issue on web worker
-// import '@acala-network/chopsticks-core/wasm-executor/browser-wasm-executor?worker&url'
+if (import.meta.env.DEV) {
+  // @ts-expect-error TODO: this is to workaround chopsticks issue on web worker
+  import('@acala-network/chopsticks-core/wasm-executor/browser-wasm-executor')
+}
 
 export type DryRunProps = {
   api: Api
