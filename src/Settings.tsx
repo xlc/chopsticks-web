@@ -18,6 +18,9 @@ const blockHeightOptions = [
   {
     value: 'latest',
   },
+  {
+    value: 'last',
+  },
 ]
 
 export type SettingsProps = {
@@ -40,7 +43,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   }, [endpoint])
 
   const blockHeightValidator = useCallback(async (_rule: any, value: string) => {
-    if (value === 'latest' || value === 'initial') {
+    if (value === 'latest' || value === 'last') {
       return
     } else {
       const blockHeight = parseInt(value)
@@ -84,7 +87,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
       if (newBlockHeight === 'latest') {
         setApiAt(newApi)
       } else {
-        if (newBlockHeight === 'initial') {
+        if (newBlockHeight === 'last') {
           const blockHash = await newApi.rpc.chain.getBlockHash()
           const newApiAt = await newApi.at(blockHash)
           setApiAt(newApiAt)
@@ -126,7 +129,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   useEffect(() => {
     onFinish({
       endpoint: endpoint ?? endpoints[0],
-      blockHeight: blockHeight ?? 'initial',
+      blockHeight: blockHeight ?? 'last',
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
