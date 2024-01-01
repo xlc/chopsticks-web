@@ -25,8 +25,13 @@ const HexCell = styled.div`
   text-overflow: ellipsis;
 `
 
-const ArgsCell = styled.div`
-  overflow-wrap: anywhere;
+const ArgsCell = styled.pre`
+  overflow: scroll;
+  background: #f3f3f3;
+  margin: -0.5rem;
+  border-radius: 0.2rem;
+  padding: 0.2rem;
+  font-size: small;
 `
 
 const columns: ColumnsType<Preimage> = [
@@ -41,17 +46,13 @@ const columns: ColumnsType<Preimage> = [
     render: (hex: string) => <HexCell>{hex}</HexCell>,
   },
   {
-    title: 'Section',
-    dataIndex: 'section',
-  },
-  {
     title: 'Method',
     dataIndex: 'method',
   },
   {
     title: 'Args',
     dataIndex: 'args',
-    render: (args: string) => <ArgsCell>{args}</ArgsCell>,
+    render: (args: string) => <p>{args}</p>,
   },
 ]
 
@@ -81,9 +82,12 @@ const Preimages: React.FC<PreimagesProps> = ({ api }) => {
         return {
           hex,
           hash: (key.args[0] as any)[0].toHex(),
-          section: call?.section,
-          method: call?.method,
-          args: JSON.stringify((call?.args as any).map((x: any) => x.toJSON())),
+          method: call ? `${call.section}.${call.method}` : undefined,
+          args: JSON.stringify(
+            Object.fromEntries((call?.argsEntries as any).map(([k, v]: any) => [k, v.toHuman()])),
+            null,
+            2,
+          ),
         }
       })
       setPreimages(processed)
@@ -95,7 +99,23 @@ const Preimages: React.FC<PreimagesProps> = ({ api }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return <Table columns={columns} loading={preimages === undefined} dataSource={preimages} rowKey="hash" />
+  return (
+    <Table
+      columns={columns}
+      loading={preimages === undefined}
+      dataSource={preimages}
+      rowKey="hash"
+      expandable={{
+        expandedRowRender: (record) => (
+          <ArgsCell>
+            Hash: {record.hash} <br />
+            Hex: {record.hex} <br />
+            Args: {record.args}
+          </ArgsCell>
+        ),
+      }}
+    />
+  )
 }
 
 const PreimagesFC = React.memo(Preimages)

@@ -3,6 +3,7 @@ import useLocalStorage from '@rehooks/local-storage'
 import { AutoComplete, Button, Form, Typography } from 'antd'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import _ from 'lodash'
+import { useSearchParams } from 'react-router-dom'
 
 import { Api } from './types'
 
@@ -30,6 +31,7 @@ export type SettingsProps = {
 const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   const [endpoint, setEndpoint] = useLocalStorage('endpoint')
   const [blockHeight, setBlockHeight] = useLocalStorage('blockHeight')
+  const [searchParams, setSearchParams] = useSearchParams()
   const [api, setApi] = useState<ApiPromise>()
   const [apiAt, setApiAt] = useState<Api>()
   const [connectionStatus, setConnectionStatus] = useState<string>()
@@ -97,7 +99,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
             const blockHash = await newApi.rpc.chain.getBlockHash(newBlockHeight)
             setApiAt(await newApi.at(blockHash))
           } catch (error) {
-            setBlockHeight('latest')
+            setBlockHeight('last')
             setConnectionStatus('Block height not found')
           }
         }
@@ -127,12 +129,36 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   }, [apiAt, endpoint, onConnect])
 
   useEffect(() => {
+    let initialEndpoint = endpoint ?? endpoints[0]
+    let initialBlockHeight = blockHeight ?? 'latest'
+    if (searchParams.has('endpoint')) {
+      initialEndpoint = searchParams.get('endpoint')!
+      setEndpoint(initialEndpoint)
+    } else {
+      searchParams.set('endpoint', initialEndpoint)
+      setSearchParams(searchParams)
+    }
+    if (searchParams.has('blockHeight')) {
+      initialBlockHeight = searchParams.get('blockHeight')!
+      setBlockHeight(initialBlockHeight)
+    } else {
+      searchParams.set('blockHeight', initialBlockHeight)
+      setSearchParams(searchParams)
+    }
     onFinish({
-      endpoint: endpoint ?? endpoints[0],
-      blockHeight: blockHeight ?? 'last',
+      endpoint: initialEndpoint,
+      blockHeight: initialBlockHeight,
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    searchParams.set('endpoint', endpoint!)
+    setSearchParams(searchParams)
+
+    searchParams.set('blockHeight', blockHeight!)
+    setSearchParams(searchParams)
+  }, [endpoint, blockHeight, searchParams, setSearchParams])
 
   return (
     <Form layout="inline" onFinish={onFinish}>
