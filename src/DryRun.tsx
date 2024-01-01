@@ -125,7 +125,7 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint }) => {
         </Form.Item>
       </Form>
       <Divider />
-      { storageDiff && <DiffViewer {...storageDiff} /> }
+      {storageDiff && <DiffViewer {...storageDiff} />}
     </div>
   )
 }

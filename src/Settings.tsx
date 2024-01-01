@@ -120,7 +120,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
     onFinish({
       endpoint: endpoint ?? endpoints[0],
       blockHeight: blockHeight ?? 'latest',
-     })
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

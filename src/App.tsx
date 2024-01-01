@@ -10,27 +10,30 @@ function App() {
   const [api, setApi] = useState<Api>()
   const [endpoint, setEndpoint] = useState<string>()
 
-  const onConnect = useCallback((api?: Api, endpoint?: string) => {
-    setApi(api)
-    setEndpoint(endpoint)
-  }, [setApi, setEndpoint])
+  const onConnect = useCallback(
+    (api?: Api, endpoint?: string) => {
+      setApi(api)
+      setEndpoint(endpoint)
+    },
+    [setApi, setEndpoint],
+  )
 
   const items: CollapseProps['items'] = [
     {
       key: 'settings',
       label: 'Settings',
-      children: <Settings onConnect={onConnect} />
+      children: <Settings onConnect={onConnect} />,
     },
     {
       key: 'preimages',
       label: 'Preimages',
-      children: api && <Preimages api={api} />
+      children: api && <Preimages api={api} />,
     },
     {
       key: 'dryrun',
       label: 'Dry Run',
-      children: api && endpoint && <DryRun api={api} endpoint={endpoint} />
-    }
+      children: api && endpoint && <DryRun api={api} endpoint={endpoint} />,
+    },
   ]
 
   return (
