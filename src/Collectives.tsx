@@ -53,7 +53,7 @@ const Collectives: React.FC<CollectivesProps> = ({ api, onDryRunPreimage, collec
           const members: any = await api.query[collectivesPallet].members()
           const membersCount = members.length
 
-          const vote: any = (await api.query[collectivesPallet].voting(hash)).unwrap()
+          const vote = ((await api.query[collectivesPallet].voting(hash)) as any).unwrap()
 
           return {
             index: vote.index.toNumber(),
