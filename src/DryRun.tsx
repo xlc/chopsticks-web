@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
-
 import { Button, Divider, Form, Input, Spin, Typography } from 'antd'
-import { decodeBlockStorageDiff, setStorage, setup, Block } from '@acala-network/chopsticks-core'
+import { decodeBlockStorageDiff, setStorage, setup, Block, ChopsticksProvider } from '@acala-network/chopsticks-core'
 import { IdbDatabase } from '@acala-network/chopsticks-db/browser'
 import { create } from 'jsondiffpatch'
 import _ from 'lodash'
 
 import { Api } from './types'
 import DiffViewer from './DiffViewer'
+import { ApiPromise } from '@polkadot/api'
 
 const diffPatcher = create({
   array: { detectMove: false },
@@ -63,6 +63,26 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
       setStorageDiff(undefined)
       setMessage('Starting')
 
+      const decodeCall = (data: any) => {
+        try {
+          return api.registry.createType('Call', data)
+        } catch (_e) {
+          return undefined
+        }
+      }
+
+      const decoded = decodeCall(preimage)
+
+      if (!decoded) {
+        setIsLoading(false)
+        setMessage('Invalid preimage')
+        return
+      }
+
+      console.log('decoded', decoded.toHuman())
+
+      // TODO: parse originJson to ensure it is the right format
+
       const blockNumber = ((await api.query.system.number()) as any).toNumber()
       const chain = await setup({
         endpoint,
@@ -73,7 +93,13 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
 
       setMessage('Chopsticks instance created')
 
+      const preimageHex = decoded.hash.toHex()
+      const len = decoded.encodedLength
+
       await setStorage(chain, {
+        preimage: {
+          preimageFor: [[[[preimageHex, decoded.encodedLength]], decoded.toHex()]],
+        },
         scheduler: {
           agenda: [
             [
@@ -81,7 +107,10 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
               [
                 {
                   call: {
-                    inline: preimage,
+                    Lookup: {
+                      hash: preimageHex,
+                      len,
+                    },
                   },
                   origin: originJson,
                 },
@@ -101,6 +130,13 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
 
       const storgaeDiff = await decodeStorageDiff(chain.head, Object.entries(diff) as any)
       setStorageDiff(storgaeDiff)
+
+      const provider = new ChopsticksProvider(chain)
+      const chopsticksApi = new ApiPromise({ provider, noInitWarn: true })
+
+      console.log('Chopsticks chain', chain)
+      console.log('Last head', chain.head)
+      console.log('Chopsticks api', chopsticksApi)
     },
     [api, endpoint, setIsLoading, setMessage, setStorageDiff],
   )
