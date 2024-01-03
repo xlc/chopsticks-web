@@ -81,8 +81,6 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
 
       console.log('decoded', decoded.toHuman())
 
-      // TODO: parse originJson to ensure it is the right format
-
       const blockNumber = ((await api.query.system.number()) as any).toNumber()
       const chain = await setup({
         endpoint,
@@ -96,37 +94,43 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
       const preimageHex = decoded.hash.toHex()
       const len = decoded.encodedLength
 
-      await setStorage(chain, {
-        preimage: {
-          preimageFor: [[[[preimageHex, decoded.encodedLength]], decoded.toHex()]],
-        },
-        scheduler: {
-          agenda: [
-            [
-              [blockNumber + 1],
+      try {
+        await setStorage(chain, {
+          preimage: {
+            preimageFor: [[[[preimageHex, decoded.encodedLength]], decoded.toHex()]],
+          },
+          scheduler: {
+            agenda: [
               [
-                {
-                  call: {
-                    Lookup: {
-                      hash: preimageHex,
-                      len,
+                [blockNumber + 1],
+                [
+                  {
+                    call: {
+                      Lookup: {
+                        hash: preimageHex,
+                        len,
+                      },
                     },
+                    origin: originJson,
                   },
-                  origin: originJson,
-                },
+                ],
               ],
             ],
-          ],
-        },
-      })
+          },
+        })
+      } catch (e) {
+        console.error(e)
+        setMessage('Invalid parameters')
+        setIsLoading(false)
+        return
+      }
 
       await chain.newBlock()
 
       setMessage('Dry run completed')
+      setIsLoading(false)
 
       const diff = await chain.head.storageDiff()
-
-      setIsLoading(false)
 
       const storgaeDiff = await decodeStorageDiff(chain.head, Object.entries(diff) as any)
       setStorageDiff(storgaeDiff)
