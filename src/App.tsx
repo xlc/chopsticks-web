@@ -7,6 +7,7 @@ import Settings from './Settings'
 import Preimages from './Preimages'
 import DryRun from './DryRun'
 import Referenda from './Referenda'
+import Collectives from './Collectives'
 
 function App() {
   const [api, setApi] = useState<Api>()
@@ -57,12 +58,11 @@ function App() {
           {
             key: 'referenda',
             label: 'Referenda',
-            children:
-              api && endpoint ? (
-                <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="referenda" />
-              ) : (
-                <Spin spinning={true} />
-              ),
+            children: api ? (
+              <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="referenda" />
+            ) : (
+              <Spin spinning={true} />
+            ),
           },
         ]
       : []),
@@ -72,11 +72,50 @@ function App() {
             key: 'fellowship-referenda',
             label: 'Fellowship Referenda',
             children:
-              api && endpoint && api.query.fellowshipReferenda ? (
+              api && api.query.fellowshipReferenda ? (
                 <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="fellowshipReferenda" />
               ) : (
                 <Spin spinning={true} />
               ),
+          },
+        ]
+      : []),
+    ...(api?.query.generalCouncil
+      ? [
+          {
+            key: 'general-council',
+            label: 'Council',
+            children: api ? (
+              <Collectives api={api} onDryRunPreimage={onDryRunPreimage} collectivesPallet="generalCouncil" />
+            ) : (
+              <Spin spinning={true} />
+            ),
+          },
+        ]
+      : []),
+    ...(api?.query.council
+      ? [
+          {
+            key: 'council',
+            label: 'Council',
+            children: api ? (
+              <Collectives api={api} onDryRunPreimage={onDryRunPreimage} collectivesPallet="council" />
+            ) : (
+              <Spin spinning={true} />
+            ),
+          },
+        ]
+      : []),
+    ...(api?.query.technicalCommittee
+      ? [
+          {
+            key: 'technical-committee',
+            label: 'TechnicalCommittee',
+            children: api ? (
+              <Collectives api={api} onDryRunPreimage={onDryRunPreimage} collectivesPallet="technicalCommittee" />
+            ) : (
+              <Spin spinning={true} />
+            ),
           },
         ]
       : []),

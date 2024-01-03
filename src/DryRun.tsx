@@ -4,10 +4,10 @@ import { decodeBlockStorageDiff, setStorage, setup, Block, ChopsticksProvider } 
 import { IdbDatabase } from '@acala-network/chopsticks-db/browser'
 import { create } from 'jsondiffpatch'
 import _ from 'lodash'
+import { ApiPromise } from '@polkadot/api'
 
 import { Api } from './types'
 import DiffViewer from './DiffViewer'
-import { ApiPromise } from '@polkadot/api'
 
 const diffPatcher = create({
   array: { detectMove: false },
@@ -91,13 +91,13 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
 
       setMessage('Chopsticks instance created')
 
-      const preimageHex = decoded.hash.toHex()
+      const preimageHash = decoded.hash.toHex()
       const len = decoded.encodedLength
 
       try {
         await setStorage(chain, {
           preimage: {
-            preimageFor: [[[[preimageHex, decoded.encodedLength]], decoded.toHex()]],
+            preimageFor: [[[[preimageHash, decoded.encodedLength]], decoded.toHex()]],
           },
           scheduler: {
             agenda: [
@@ -107,7 +107,7 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
                   {
                     call: {
                       Lookup: {
-                        hash: preimageHex,
+                        hash: preimageHash,
                         len,
                       },
                     },
