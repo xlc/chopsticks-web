@@ -137,9 +137,6 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
       const storgaeDiff = await decodeStorageDiff(oldHead, Object.entries(diff) as any)
       setStorageDiff(storgaeDiff)
 
-      console.log('diff', diff)
-      console.log('storgaeDiff', storgaeDiff)
-
       const provider = new ChopsticksProvider(chain)
       const chopsticksApi = new ApiPromise({ provider, noInitWarn: true })
 
