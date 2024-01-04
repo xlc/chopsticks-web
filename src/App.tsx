@@ -8,6 +8,7 @@ import Preimages from './Preimages'
 import DryRun from './DryRun'
 import Referenda from './Referenda'
 import Collectives from './Collectives'
+import Democracy from './Democracy'
 
 function App() {
   const [api, setApi] = useState<Api>()
@@ -77,6 +78,15 @@ function App() {
               ) : (
                 <Spin spinning={true} />
               ),
+          },
+        ]
+      : []),
+    ...(api?.query.democracy
+      ? [
+          {
+            key: 'democracy',
+            label: 'Democracy',
+            children: api ? <Democracy api={api} onDryRunPreimage={onDryRunPreimage} /> : <Spin spinning={true} />,
           },
         ]
       : []),
