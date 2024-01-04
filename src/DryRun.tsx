@@ -125,6 +125,8 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
         return
       }
 
+      const oldHead = chain.head
+
       await chain.newBlock()
 
       setMessage('Dry run completed')
@@ -132,8 +134,11 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
 
       const diff = await chain.head.storageDiff()
 
-      const storgaeDiff = await decodeStorageDiff(chain.head, Object.entries(diff) as any)
+      const storgaeDiff = await decodeStorageDiff(oldHead, Object.entries(diff) as any)
       setStorageDiff(storgaeDiff)
+
+      console.log('diff', diff)
+      console.log('storgaeDiff', storgaeDiff)
 
       const provider = new ChopsticksProvider(chain)
       const chopsticksApi = new ApiPromise({ provider, noInitWarn: true })
