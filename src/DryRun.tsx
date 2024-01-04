@@ -8,6 +8,7 @@ import { ApiPromise } from '@polkadot/api'
 
 import { Api } from './types'
 import DiffViewer from './DiffViewer'
+import { compactAddLength } from '@polkadot/util'
 
 const diffPatcher = create({
   array: { detectMove: false },
@@ -97,7 +98,7 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
       try {
         await setStorage(chain, {
           preimage: {
-            preimageFor: [[[[preimageHash, decoded.encodedLength]], decoded.toHex()]],
+            preimageFor: [[[[preimageHash, decoded.encodedLength]], compactAddLength(decoded.toU8a())]],
           },
           scheduler: {
             agenda: [
@@ -129,8 +130,7 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
 
       await chain.newBlock()
 
-      setMessage('Dry run completed')
-      setIsLoading(false)
+      setMessage('Dry run completed. Preparing diff...')
 
       const diff = await chain.head.storageDiff()
 
@@ -143,6 +143,9 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
       console.log('Chopsticks chain', chain)
       console.log('Last head', chain.head)
       console.log('Chopsticks api', chopsticksApi)
+
+      setMessage('')
+      setIsLoading(false)
     },
     [api, endpoint, setIsLoading, setMessage, setStorageDiff],
   )
