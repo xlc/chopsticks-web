@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Button, Divider, Form, Input, Spin, Typography } from 'antd'
+import { Button, Divider, Form, Input, Spin, Typography, FormProps } from 'antd'
 import { decodeBlockStorageDiff, setStorage, setup, Block, ChopsticksProvider } from '@acala-network/chopsticks-core'
 import { IdbDatabase } from '@acala-network/chopsticks-db/browser'
 import { create } from 'jsondiffpatch'
@@ -9,6 +9,8 @@ import { ApiPromise } from '@polkadot/api'
 import { Api } from './types'
 import DiffViewer from './DiffViewer'
 import { compactAddLength } from '@polkadot/util'
+import { ArgsCell } from './components'
+import { callToHuman } from './helper'
 
 const diffPatcher = create({
   array: { detectMove: false },
@@ -45,11 +47,20 @@ const parseJson = (value: string) => {
   }
 }
 
+const decodeCall = (api: Api, data: any) => {
+  try {
+    return api.registry.createType('Call', data)
+  } catch (_e) {
+    return undefined
+  }
+}
+
 const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimage }) => {
   const [form] = Form.useForm()
   const [message, setMessage] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
   const [storageDiff, setStorageDiff] = useState<Awaited<ReturnType<typeof decodeStorageDiff>>>()
+  const [call, setCall] = useState<any>()
 
   const onFinish = useCallback(
     async (values: any) => {
@@ -64,23 +75,13 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
       setStorageDiff(undefined)
       setMessage('Starting')
 
-      const decodeCall = (data: any) => {
-        try {
-          return api.registry.createType('Call', data)
-        } catch (_e) {
-          return undefined
-        }
-      }
-
-      const decoded = decodeCall(preimage)
+      const decoded = decodeCall(api, preimage)
 
       if (!decoded) {
         setIsLoading(false)
         setMessage('Invalid preimage')
         return
       }
-
-      console.log('decoded', decoded.toHuman())
 
       const blockNumber = ((await api.query.system.number()) as any).toNumber()
       const chain = await setup({
@@ -147,23 +148,58 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
       setMessage('')
       setIsLoading(false)
     },
-    [api, endpoint, setIsLoading, setMessage, setStorageDiff],
+    [api, endpoint],
   )
 
   useEffect(() => {
     form.setFieldValue('preimage', defaultPreimage?.hex)
     form.setFieldValue('origin', JSON.stringify(defaultPreimage?.origin || rootOrigin))
-  }, [defaultPreimage, form])
+    if (defaultPreimage?.hex) {
+      const decoded = decodeCall(api, defaultPreimage?.hex)
+      if (decoded) {
+        const data = `${decoded.section}.${decoded.method}\n${callToHuman(decoded)}`
+        setCall(data)
+      } else {
+        setCall(undefined)
+      }
+    }
+  }, [api, defaultPreimage, form])
+
+  const onFieldsChange = useCallback(
+    (changedFields: Parameters<NonNullable<FormProps['onFieldsChange']>>[0]) => {
+      for (const field of changedFields) {
+        if (field.name[0] === 'preimage') {
+          const decoded = decodeCall(api, field.value)
+          if (decoded) {
+            const data = `${decoded.section}.${decoded.method}\n${callToHuman(decoded)}`
+            setCall(data)
+          } else {
+            setCall(undefined)
+          }
+        }
+      }
+    },
+    [api, setCall],
+  )
 
   return (
     <div>
-      <Form form={form} onFinish={onFinish} disabled={isLoading}>
+      <Form form={form} onFinish={onFinish} disabled={isLoading} onFieldsChange={onFieldsChange}>
         <Form.Item
           label="preimage"
           name="preimage"
           rules={[{ required: true, pattern: /^0x[\da-f]+$/i, message: 'Not a hex value with 0x prefix' }]}
         >
           <Input pattern="0x[0-9a-fA-F]+" />
+        </Form.Item>
+        <Form.Item>
+          {call ? (
+            <Typography.Text>
+              <ArgsCell style={{ maxHeight: 200 }}>{call}</ArgsCell>
+            </Typography.Text>
+          ) : (
+            <Typography.Text type="danger">Invalid Call</Typography.Text>
+          )}
         </Form.Item>
         <Form.Item label="origin" name="origin" required initialValue={JSON.stringify(rootOrigin)}>
           <Input />

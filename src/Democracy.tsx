@@ -4,6 +4,7 @@ import type { ColumnsType } from 'antd/es/table'
 
 import { Api } from './types'
 import { ArgsCell, CompactArgsCell, HexCell } from './components'
+import { callToHuman } from './helper'
 
 export type DemocracyProps = {
   api: Api
@@ -76,13 +77,7 @@ const Democracy: React.FC<DemocracyProps> = ({ api, onDryRunPreimage }) => {
             },
             hex,
             method: call ? `${call.section}.${call.method}` : undefined,
-            args:
-              call &&
-              JSON.stringify(
-                Object.fromEntries((call.argsEntries as any).map(([k, v]: any) => [k, v.toHuman()])),
-                null,
-                2,
-              ),
+            args: callToHuman(call),
           }
         }),
       )

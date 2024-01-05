@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table'
 
 import { Api } from './types'
 import { ArgsCell, CompactArgsCell, HexCell } from './components'
+import { callToHuman } from './helper'
 
 export type ReferendaProps = {
   api: Api
@@ -93,13 +94,7 @@ const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage, referendaP
             origin: ongoing.origin,
             hex,
             method: call ? `${call.section}.${call.method}` : undefined,
-            args:
-              call &&
-              JSON.stringify(
-                Object.fromEntries((call.argsEntries as any).map(([k, v]: any) => [k, v.toHuman()])),
-                null,
-                2,
-              ),
+            args: callToHuman(call),
           }
         }),
       )
