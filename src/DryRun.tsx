@@ -35,11 +35,12 @@ export type DryRunProps = {
   api: Api
   endpoint: string
   preimage?: { hex: string; origin: any }
+  extrinsicMode?: boolean
 }
 
 const rootOrigin = { system: 'Root' }
 
-const parseJson = (value: string) => {
+const parseOrigin = (value: string) => {
   try {
     return JSON.parse(value)
   } catch (e) {
@@ -55,24 +56,25 @@ const decodeCall = (api: Api, data: any) => {
   }
 }
 
-const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimage }) => {
+const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimage, extrinsicMode }) => {
   const [form] = Form.useForm()
   const [message, setMessage] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
   const [storageDiff, setStorageDiff] = useState<Awaited<ReturnType<typeof decodeStorageDiff>>>()
   const [call, setCall] = useState<any>()
+  const [dryRunOutcome, setDryRunOutcome] = useState<string>()
 
   const onFinish = useCallback(
     async (values: any) => {
       const { preimage, origin } = values
-      const originJson = parseJson(origin)
 
-      if (!preimage || !originJson) {
+      if (!preimage) {
         return
       }
 
       setIsLoading(true)
       setStorageDiff(undefined)
+      setDryRunOutcome('')
       setMessage('Starting')
 
       const decoded = decodeCall(api, preimage)
@@ -93,49 +95,88 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
 
       setMessage('Chopsticks instance created')
 
-      const preimageHash = decoded.hash.toHex()
-      const len = decoded.encodedLength
-
-      try {
-        await setStorage(chain, {
-          preimage: {
-            preimageFor: [[[[preimageHash, decoded.encodedLength]], compactAddLength(decoded.toU8a())]],
-          },
-          scheduler: {
-            agenda: [
-              [
-                [blockNumber + 1],
+      const dryRunExtrinsic = async () => {
+        try {
+          // Give Alice some funds
+          await setStorage(chain, {
+            system: {
+              account: [
                 [
+                  ['5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'],
                   {
-                    call: {
-                      Lookup: {
-                        hash: preimageHash,
-                        len,
-                      },
+                    providers: 1,
+                    data: {
+                      free: '1000000000000',
                     },
-                    origin: originJson,
                   },
                 ],
               ],
-            ],
-          },
+            },
+          })
+        } catch (e) {
+          console.log('Enable to override Alice balances', e)
+        }
+
+        const res = await chain.dryRunExtrinsic({
+          call: preimage,
+          address: origin,
         })
-      } catch (e) {
-        console.error(e)
-        setMessage('Invalid parameters')
-        setIsLoading(false)
-        return
+        const diff = res.storageDiff
+
+        setDryRunOutcome(JSON.stringify(res.outcome.toHuman()))
+
+        setMessage('Dry run completed. Preparing diff...')
+
+        return await decodeStorageDiff(chain.head, diff as any)
       }
 
-      const oldHead = chain.head
+      const dryRunPreimage = async () => {
+        const oldHead = chain.head
+        const originJson = parseOrigin(origin)
 
-      await chain.newBlock()
+        const preimageHash = decoded.hash.toHex()
+        const len = decoded.encodedLength
+        try {
+          await setStorage(chain, {
+            preimage: {
+              preimageFor: [[[[preimageHash, decoded.encodedLength]], compactAddLength(decoded.toU8a())]],
+            },
+            scheduler: {
+              agenda: [
+                [
+                  [blockNumber + 1],
+                  [
+                    {
+                      call: {
+                        Lookup: {
+                          hash: preimageHash,
+                          len,
+                        },
+                      },
+                      origin: originJson,
+                    },
+                  ],
+                ],
+              ],
+            },
+          })
+        } catch (e) {
+          console.error(e)
+          setMessage('Invalid parameters')
+          setIsLoading(false)
+          return
+        }
 
-      setMessage('Dry run completed. Preparing diff...')
+        await chain.newBlock()
 
-      const diff = await chain.head.storageDiff()
+        setMessage('Dry run completed. Preparing diff...')
 
-      const storgaeDiff = await decodeStorageDiff(oldHead, Object.entries(diff) as any)
+        const diff = await chain.head.storageDiff()
+
+        return await decodeStorageDiff(oldHead, Object.entries(diff) as any)
+      }
+
+      const storgaeDiff = extrinsicMode ? await dryRunExtrinsic() : await dryRunPreimage()
       setStorageDiff(storgaeDiff)
 
       const provider = new ChopsticksProvider(chain)
@@ -148,12 +189,18 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
       setMessage('')
       setIsLoading(false)
     },
-    [api, endpoint],
+    [api, endpoint, extrinsicMode],
   )
 
   useEffect(() => {
+    const originInitialValue = extrinsicMode
+      ? '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
+      : JSON.stringify(rootOrigin)
     form.setFieldValue('preimage', defaultPreimage?.hex)
-    form.setFieldValue('origin', JSON.stringify(defaultPreimage?.origin || rootOrigin))
+    form.setFieldValue(
+      'origin',
+      defaultPreimage ? JSON.stringify(defaultPreimage.origin ?? rootOrigin) : originInitialValue,
+    )
     if (defaultPreimage?.hex) {
       const decoded = decodeCall(api, defaultPreimage?.hex)
       if (decoded) {
@@ -163,7 +210,7 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
         setCall(undefined)
       }
     }
-  }, [api, defaultPreimage, form])
+  }, [api, defaultPreimage, extrinsicMode, form])
 
   const onFieldsChange = useCallback(
     (changedFields: Parameters<NonNullable<FormProps['onFieldsChange']>>[0]) => {
@@ -186,7 +233,7 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
     <div>
       <Form form={form} onFinish={onFinish} disabled={isLoading} onFieldsChange={onFieldsChange}>
         <Form.Item
-          label="preimage"
+          label={extrinsicMode ? 'extrinsic' : 'preimage'}
           name="preimage"
           rules={[{ required: true, pattern: /^0x[\da-f]+$/i, message: 'Not a hex value with 0x prefix' }]}
         >
@@ -201,7 +248,7 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
             <Typography.Text type="danger">Invalid Call</Typography.Text>
           )}
         </Form.Item>
-        <Form.Item label="origin" name="origin" required initialValue={JSON.stringify(rootOrigin)}>
+        <Form.Item label="origin" name="origin" required>
           <Input />
         </Form.Item>
         <Form.Item>
@@ -213,6 +260,8 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
           <Spin spinning={isLoading} />
           &nbsp;&nbsp;
           <Typography.Text>{message}</Typography.Text>
+          &nbsp;&nbsp;
+          <Typography.Text>{dryRunOutcome}</Typography.Text>
         </Form.Item>
       </Form>
       <Divider />

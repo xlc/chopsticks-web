@@ -26,9 +26,9 @@ function App() {
 
   const onDryRunPreimage = useCallback(
     (hex: string, origin?: any) => {
-      const newKeys = [...activeKey].filter((key) => key === 'settings' || key === 'dryrun')
-      if (newKeys.indexOf('dryrun') < 0) {
-        newKeys.push('dryrun')
+      const newKeys = [...activeKey].filter((key) => key === 'settings' || key === 'dryrun-preimage')
+      if (newKeys.indexOf('dryrun-preimage') < 0) {
+        newKeys.push('dryrun-preimage')
       }
       setActiveKey(newKeys)
       setPreimage({ hex, origin })
@@ -130,10 +130,16 @@ function App() {
         ]
       : []),
     {
-      key: 'dryrun',
-      label: 'Dry Run',
+      key: 'dryrun-preimage',
+      label: 'Dry Run Preimage',
       children:
         api && endpoint ? <DryRun api={api} endpoint={endpoint} preimage={preimage} /> : <Spin spinning={true} />,
+    },
+    {
+      key: 'dryrun-extrinsic',
+      label: 'Dry Run Extrinsic',
+      children:
+        api && endpoint ? <DryRun api={api} endpoint={endpoint} extrinsicMode={true} /> : <Spin spinning={true} />,
     },
   ]
 
