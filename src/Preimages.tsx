@@ -76,6 +76,10 @@ const Preimages: React.FC<PreimagesProps> = ({ api, onDryRunPreimage }) => {
       render: (hex: string) => <HexCell>{hex}</HexCell>,
     },
     {
+      title: 'Len',
+      render: (record) => <span>{record.hex.length / 2 - 1}</span>,
+    },
+    {
       title: 'Method',
       dataIndex: 'method',
     },
