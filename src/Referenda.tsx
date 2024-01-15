@@ -111,6 +111,7 @@ const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage, referendaP
     {
       title: '#',
       dataIndex: 'index',
+      sorter: (a, b) => a.index - b.index,
     },
     {
       title: 'Hex',
@@ -120,6 +121,7 @@ const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage, referendaP
     {
       title: 'Track',
       dataIndex: 'track',
+      sorter: (a, b) => (a.track || '').localeCompare(b.track || ''),
     },
     {
       title: 'Method',
