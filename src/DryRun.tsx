@@ -176,8 +176,8 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
         return await decodeStorageDiff(oldHead, Object.entries(diff) as any)
       }
 
-      const storgaeDiff = extrinsicMode ? await dryRunExtrinsic() : await dryRunPreimage()
-      setStorageDiff(storgaeDiff)
+      const diff = extrinsicMode ? await dryRunExtrinsic() : await dryRunPreimage()
+      setStorageDiff(diff)
 
       const provider = new ChopsticksProvider(chain)
       const chopsticksApi = new ApiPromise({ provider, noInitWarn: true })

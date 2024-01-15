@@ -9,6 +9,7 @@ import DryRun from './DryRun'
 import Referenda from './Referenda'
 import Collectives from './Collectives'
 import Democracy from './Democracy'
+import StateCall from './StateCall'
 
 function App() {
   const [api, setApi] = useState<Api>()
@@ -140,6 +141,11 @@ function App() {
       label: 'Dry Run Extrinsic',
       children:
         api && endpoint ? <DryRun api={api} endpoint={endpoint} extrinsicMode={true} /> : <Spin spinning={true} />,
+    },
+    {
+      key: 'state-call',
+      label: 'State Call',
+      children: api && endpoint ? <StateCall api={api} endpoint={endpoint} /> : <Spin spinning={true} />,
     },
   ]
 
