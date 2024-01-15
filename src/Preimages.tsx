@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
-import { Button, Table } from 'antd'
+import { Button, Input, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
 import { Api } from './types'
@@ -21,6 +21,8 @@ type Preimage = {
 
 const Preimages: React.FC<PreimagesProps> = ({ api, onDryRunPreimage }) => {
   const [preimages, setPreimages] = useState<Preimage[]>()
+  const [search, setSearch] = useState<string>()
+  const [filteredPreimages, setFilteredPreimages] = useState<Preimage[]>()
 
   useEffect(() => {
     let canceled = false
@@ -82,6 +84,7 @@ const Preimages: React.FC<PreimagesProps> = ({ api, onDryRunPreimage }) => {
     {
       title: 'Method',
       dataIndex: 'method',
+      sorter: (a, b) => (a.method || '').localeCompare(b.method || ''),
     },
     {
       title: 'Args',
@@ -94,22 +97,40 @@ const Preimages: React.FC<PreimagesProps> = ({ api, onDryRunPreimage }) => {
     },
   ]
 
+  const onSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value.toLowerCase())
+  }, [])
+
+  useEffect(() => {
+    setFilteredPreimages(
+      preimages?.filter((p) => {
+        if (!search) {
+          return true
+        }
+        return p.hash.includes(search) || p.hex.includes(search) || p.method?.toLowerCase()?.includes(search)
+      }),
+    )
+  }, [search, preimages])
+
   return (
-    <Table
-      columns={columns}
-      loading={preimages === undefined}
-      dataSource={preimages}
-      rowKey="hash"
-      expandable={{
-        expandedRowRender: (record) => (
-          <ArgsCell>
-            Hash: {record.hash} <br />
-            Hex: {record.hex} <br />
-            Args: {record.args}
-          </ArgsCell>
-        ),
-      }}
-    />
+    <>
+      <Input.Search placeholder="Search by hash or hex or method" onChange={onSearchChange} />
+      <Table
+        columns={columns}
+        loading={preimages === undefined}
+        dataSource={filteredPreimages}
+        rowKey="hash"
+        expandable={{
+          expandedRowRender: (record) => (
+            <ArgsCell>
+              Hash: {record.hash} <br />
+              Hex: {record.hex} <br />
+              Args: {record.args}
+            </ArgsCell>
+          ),
+        }}
+      />
+    </>
   )
 }
 
