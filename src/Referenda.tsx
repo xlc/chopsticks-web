@@ -71,6 +71,9 @@ const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage, referendaP
             if (proposal.isInline) {
               return proposal.asInline
             }
+            if (proposal.isLegacy) {
+              return undefined // not supported
+            }
             const data = proposal.asLookup.toJSON()
             const hash = data.hash
             const len = data.len
@@ -80,6 +83,9 @@ const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage, referendaP
           }
 
           const hex = await lookup()
+          if (!hex) {
+            return undefined
+          }
           const call = decodeCall(hex)
 
           const index = (key.args[0] as any).toNumber()
