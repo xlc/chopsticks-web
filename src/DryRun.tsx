@@ -43,7 +43,7 @@ const rootOrigin = { system: 'Root' }
 const parseOrigin = (value: string) => {
   try {
     return JSON.parse(value)
-  } catch (e) {
+  } catch (_e) {
     return undefined
   }
 }

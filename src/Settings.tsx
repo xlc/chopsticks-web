@@ -98,7 +98,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
           try {
             const blockHash = await newApi.rpc.chain.getBlockHash(newBlockHeight)
             setApiAt(await newApi.at(blockHash))
-          } catch (error) {
+          } catch (_e) {
             setBlockHeight('last')
             setConnectionStatus('Block height not found')
           }
