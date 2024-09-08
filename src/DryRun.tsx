@@ -193,14 +193,9 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
   )
 
   useEffect(() => {
-    const originInitialValue = extrinsicMode
-      ? '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
-      : JSON.stringify(rootOrigin)
+    const originInitialValue = extrinsicMode ? '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY' : JSON.stringify(rootOrigin)
     form.setFieldValue('preimage', defaultPreimage?.hex)
-    form.setFieldValue(
-      'origin',
-      defaultPreimage ? JSON.stringify(defaultPreimage.origin ?? rootOrigin) : originInitialValue,
-    )
+    form.setFieldValue('origin', defaultPreimage ? JSON.stringify(defaultPreimage.origin ?? rootOrigin) : originInitialValue)
     if (defaultPreimage?.hex) {
       const decoded = decodeCall(api, defaultPreimage?.hex)
       if (decoded) {

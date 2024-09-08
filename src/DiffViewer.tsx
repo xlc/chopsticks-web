@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { JSONTree } from 'react-json-tree'
 import _ from 'lodash'
 import styled from 'styled-components'
@@ -6,6 +6,7 @@ import styled from 'styled-components'
 export type DiffViewerProps = {
   oldState: any
   delta: any
+  newState: any
 }
 
 const expandFirstLevel = (_keyName: any, _data: any, level: number) => level <= 1
@@ -140,13 +141,49 @@ const MainViewer = styled.div`
   width: 80%;
 `
 
-const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta }) => {
-  const [showUnchanged, setShowUnchanged] = useState(false)
+const enum ViewMode {
+  Events = 'events',
+  Changed = 'changed',
+  Unchanged = 'unchanged',
+}
+
+const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta, newState }) => {
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Events)
   const [partial, setPartial] = useState(null)
 
-  const toggleState = useCallback(() => {
-    setShowUnchanged((showUnchanged) => !showUnchanged)
-  }, [setShowUnchanged])
+  const handleViewModeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setViewMode(e.target.value as ViewMode)
+    },
+    [setViewMode],
+  )
+
+  const data = useMemo(() => {
+    switch (viewMode) {
+      case ViewMode.Unchanged:
+        return _.merge(_.cloneDeep(oldState), delta)
+      case ViewMode.Changed:
+        return delta
+      case ViewMode.Events: {
+        const events = _.get(newState, 'system.events').map((e: any) => ({
+          phase: typeof e.phase === 'string' ? e.phase : JSON.stringify(e.phase),
+          kind: `${e.event.section}.${e.event.method}`,
+          data: e.event.data,
+        }))
+        const upwardMessages = _.get(newState, 'parachainSystem.upwardMessages')
+        const downwardMessages = _.get(newState, 'dmp.downwardMessageQueues')
+        const horizontalMessages = _.get(newState, 'parachainSystem.hrmpOutboundMessages')
+        return {
+          ...(upwardMessages && upwardMessages.length > 0 ? { UpwardMessages: upwardMessages } : {}),
+          ...(downwardMessages && downwardMessages.length > 0 ? { DownwardMessages: downwardMessages } : {}),
+          ...(horizontalMessages && horizontalMessages.length > 0 ? { HorizontalMessages: horizontalMessages } : {}),
+          SystemEvents: events,
+        }
+      }
+      default:
+        throw new Error(`Unsupported view mode: ${viewMode}`)
+    }
+  }, [oldState, delta, newState, viewMode])
 
   const viewPartial = useCallback(
     (value: any) => {
@@ -218,18 +255,47 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta }) => {
     <div>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         <MainViewer>
-          <input type="checkbox" onChange={toggleState} id="show_unchanged" />
-          <label htmlFor="show_unchanged">Show Unchanged</label>
-          <JSONTree
-            theme={theme}
-            invertTheme={true}
-            data={showUnchanged ? _.merge(_.cloneDeep(oldState), delta) : delta}
-            valueRenderer={valueRenderer(viewPartial)}
-            postprocessValue={prepareDelta}
-            isCustomNode={Array.isArray}
-            shouldExpandNodeInitially={expandFirstLevel}
-            hideRoot
+          <input
+            type="radio"
+            id="show_events"
+            name="viewMode"
+            value="events"
+            checked={viewMode === 'events'}
+            onChange={handleViewModeChange}
           />
+          <label htmlFor="show_events">Events</label>
+          <input
+            type="radio"
+            id="show_changed"
+            name="viewMode"
+            value="changed"
+            checked={viewMode === 'changed'}
+            onChange={handleViewModeChange}
+          />
+          <label htmlFor="show_changed">Changed</label>
+          <input
+            type="radio"
+            id="show_unchanged"
+            name="viewMode"
+            value="unchanged"
+            checked={viewMode === 'unchanged'}
+            onChange={handleViewModeChange}
+          />
+          <label htmlFor="show_unchanged">Unchanged</label>
+          {viewMode === ViewMode.Events ? (
+            <JSONTree theme={theme} invertTheme={true} data={data} shouldExpandNodeInitially={(_k, _d, l) => l <= 3} hideRoot />
+          ) : (
+            <JSONTree
+              theme={theme}
+              invertTheme={true}
+              data={data}
+              valueRenderer={valueRenderer(viewPartial)}
+              postprocessValue={prepareDelta}
+              isCustomNode={Array.isArray}
+              shouldExpandNodeInitially={expandFirstLevel}
+              hideRoot
+            />
+          )}
         </MainViewer>
         {partial ? (
           <PartialViewer>

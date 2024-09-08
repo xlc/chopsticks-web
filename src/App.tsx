@@ -133,14 +133,12 @@ function App() {
     {
       key: 'dryrun-preimage',
       label: 'Dry Run Preimage',
-      children:
-        api && endpoint ? <DryRun api={api} endpoint={endpoint} preimage={preimage} /> : <Spin spinning={true} />,
+      children: api && endpoint ? <DryRun api={api} endpoint={endpoint} preimage={preimage} /> : <Spin spinning={true} />,
     },
     {
       key: 'dryrun-extrinsic',
       label: 'Dry Run Extrinsic',
-      children:
-        api && endpoint ? <DryRun api={api} endpoint={endpoint} extrinsicMode={true} /> : <Spin spinning={true} />,
+      children: api && endpoint ? <DryRun api={api} endpoint={endpoint} extrinsicMode={true} /> : <Spin spinning={true} />,
     },
     {
       key: 'state-call',

@@ -48,13 +48,7 @@ const Preimages: React.FC<PreimagesProps> = ({ api, onDryRunPreimage }) => {
           hex,
           hash: (key.args[0] as any)[0].toHex(),
           method: call ? `${call.section}.${call.method}` : undefined,
-          args:
-            call &&
-            JSON.stringify(
-              Object.fromEntries((call.argsEntries as any).map(([k, v]: any) => [k, v.toHuman()])),
-              null,
-              2,
-            ),
+          args: call && JSON.stringify(Object.fromEntries((call.argsEntries as any).map(([k, v]: any) => [k, v.toHuman()])), null, 2),
         }
       })
       setPreimages(processed)
