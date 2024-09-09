@@ -1,33 +1,13 @@
 import React, { useCallback, useState } from 'react'
 import { Button, Divider, Form, Input, Spin, Typography } from 'antd'
-import { decodeBlockStorageDiff, setup, Block, ChopsticksProvider } from '@acala-network/chopsticks-core'
+import { setup, ChopsticksProvider } from '@acala-network/chopsticks-core'
 import { IdbDatabase } from '@acala-network/chopsticks-db/browser'
-import { create } from 'jsondiffpatch'
-import _ from 'lodash'
 import { ApiPromise } from '@polkadot/api'
 
 import { Api } from './types'
 import DiffViewer from './DiffViewer'
 import { ArgsCell } from './components'
-
-const diffPatcher = create({
-  arrays: { detectMove: false },
-  textDiff: { minLength: Number.MAX_VALUE } as any, // skip text diff
-})
-
-const decodeStorageDiff = async (block: Block, diff: [string, string | null][]) => {
-  const [oldState, newState] = await decodeBlockStorageDiff(block, diff as any)
-  const oldStateWithoutEvents = _.cloneDeep(oldState) as any
-  if (oldStateWithoutEvents['system']?.['events']) {
-    oldStateWithoutEvents['system']['events'] = []
-  }
-  return { oldState, newState, delta: diffPatcher.diff(oldStateWithoutEvents, newState) }
-}
-
-if (import.meta.env.DEV) {
-  // @ts-expect-error TODO: this is to workaround chopsticks issue on web worker
-  import('@acala-network/chopsticks-core/wasm-executor/browser-wasm-executor')
-}
+import { decodeStorageDiff } from './helper'
 
 export type StateCallProps = {
   api: Api

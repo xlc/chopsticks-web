@@ -165,7 +165,7 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta, newState }) =>
       case ViewMode.Changed:
         return delta
       case ViewMode.Events: {
-        const events = _.get(newState, 'system.events').map((e: any) => ({
+        const events = _.get(newState, 'system.events')?.map((e: any) => ({
           phase: typeof e.phase === 'string' ? e.phase : JSON.stringify(e.phase),
           kind: `${e.event.section}.${e.event.method}`,
           data: e.event.data,
@@ -174,9 +174,9 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta, newState }) =>
         const downwardMessages = _.get(newState, 'dmp.downwardMessageQueues')
         const horizontalMessages = _.get(newState, 'parachainSystem.hrmpOutboundMessages')
         return {
-          ...(upwardMessages && upwardMessages.length > 0 ? { UpwardMessages: upwardMessages } : {}),
-          ...(downwardMessages && downwardMessages.length > 0 ? { DownwardMessages: downwardMessages } : {}),
-          ...(horizontalMessages && horizontalMessages.length > 0 ? { HorizontalMessages: horizontalMessages } : {}),
+          ...(upwardMessages?.length > 0 ? { UpwardMessages: upwardMessages } : {}),
+          ...(downwardMessages?.length > 0 ? { DownwardMessages: downwardMessages } : {}),
+          ...(horizontalMessages?.length > 0 ? { HorizontalMessages: horizontalMessages } : {}),
           SystemEvents: events,
         }
       }
