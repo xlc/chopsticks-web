@@ -11,8 +11,8 @@ import DiffViewer from './DiffViewer'
 import { ArgsCell } from './components'
 
 const diffPatcher = create({
-  array: { detectMove: false },
-  textDiff: { minLength: Number.MAX_VALUE }, // skip text diff
+  arrays: { detectMove: false },
+  textDiff: { minLength: Number.MAX_VALUE } as any, // skip text diff
 })
 
 const decodeStorageDiff = async (block: Block, diff: [string, string | null][]) => {
