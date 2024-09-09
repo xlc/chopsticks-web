@@ -21,7 +21,6 @@ const DryRunBlock: React.FC<DryRunBlockProps> = ({ api, endpoint }) => {
 
   const onFinish = useCallback(
     async (values: any) => {
-      console.log(values)
       const { extrinsics, dmp, ump, hrmp } = values
 
       setIsLoading(true)
@@ -46,12 +45,20 @@ const DryRunBlock: React.FC<DryRunBlockProps> = ({ api, endpoint }) => {
             umpMessages[item.paraId] = umpMessages[item.paraId] ?? []
             umpMessages[item.paraId].push(item.message)
           }
+          const hrmpMessages: Record<number, any> = {}
+          for (const item of hrmp ?? []) {
+            hrmpMessages[item.paraId] = hrmpMessages[item.paraId] ?? []
+            hrmpMessages[item.paraId].push({
+              sendAt: item.sendAt,
+              data: item.message,
+            })
+          }
 
           const block = await chain.newBlock({
             transactions: extrinsics,
             downwardMessages: dmp,
             upwardMessages: umpMessages,
-            horizontalMessages: hrmp,
+            horizontalMessages: hrmpMessages,
           })
 
           setMessage('Dry run completed. Preparing diff...')

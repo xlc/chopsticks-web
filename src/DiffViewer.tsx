@@ -175,7 +175,7 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta, newState }) =>
         const horizontalMessages = _.get(newState, 'parachainSystem.hrmpOutboundMessages')
         return {
           ...(upwardMessages?.length > 0 ? { UpwardMessages: upwardMessages } : {}),
-          ...(downwardMessages?.length > 0 ? { DownwardMessages: downwardMessages } : {}),
+          ...(downwardMessages ? { DownwardMessages: downwardMessages } : {}),
           ...(horizontalMessages?.length > 0 ? { HorizontalMessages: horizontalMessages } : {}),
           SystemEvents: events,
         }
