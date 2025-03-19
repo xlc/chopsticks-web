@@ -10,11 +10,11 @@
     "lint": "biome check .",
     "fix": "biome check --write",
     "check": "tsc --noEmit && biome check",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "dependencies": {
     "@acala-network/chopsticks-core": "1.0.3",
-    "@acala-network/chopsticks-db": "0.14.1",
+    "@acala-network/chopsticks-db": "1.0.3",
     "@polkadot/api": "15.8.1",
     "@polkadot/util": "13.4.3",
     "@rehooks/local-storage": "^2.4.5",
