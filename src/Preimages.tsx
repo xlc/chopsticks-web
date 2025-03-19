@@ -3,8 +3,8 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Button, Input, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 
-import { Api } from './types'
 import { ArgsCell, CompactArgsCell, HexCell } from './components'
+import type { Api } from './types'
 
 export type PreimagesProps = {
   api: Api
@@ -58,7 +58,7 @@ const Preimages: React.FC<PreimagesProps> = ({ api, onDryRunPreimage }) => {
       canceled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [api])
 
   const columns: ColumnsType<Preimage> = [
     {

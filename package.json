@@ -7,8 +7,9 @@
     "dev": "bunx --bun vite",
     "build": "tsc && bunx --bun vite build",
     "preview": "bunx --bun vite preview",
-    "lint": "tsc --noEmit --project tsconfig.json && eslint . --report-unused-disable-directives --max-warnings 0 && prettier --check .",
-    "fix": "eslint .  --fix && prettier -w .",
+    "lint": "biome check .",
+    "fix": "biome check --write",
+    "check": "tsc --noEmit && biome check",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -17,43 +18,30 @@
     "@polkadot/api": "15.8.1",
     "@polkadot/util": "13.4.3",
     "@rehooks/local-storage": "^2.4.5",
-    "antd": "^5.20.5",
+    "antd": "^5.24.4",
     "jsondiffpatch": "0.6.0",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-json-tree": "^0.19.0",
-    "react-router-dom": "^6.26.1",
-    "styled-components": "^6.1.13"
+    "react-router-dom": "^6.30.0",
+    "styled-components": "^6.1.16"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.1.1",
-    "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.9.1",
-    "@types/lodash": "^4.17.7",
-    "@types/react": "^18.3.5",
-    "@types/react-dom": "^18.3.0",
+    "@biomejs/biome": "^1.9.4",
+    "@types/lodash": "^4.17.16",
+    "@types/react": "^18.3.19",
+    "@types/react-dom": "^18.3.5",
     "@typescript-eslint/eslint-plugin": "8.4.0",
     "@typescript-eslint/parser": "8.4.0",
-    "@vitejs/plugin-react-swc": "^3.7.0",
-    "eslint": "^9.9.1",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.11",
-    "globals": "^15.9.0",
-    "husky": "^9.1.5",
-    "lint-staged": "^15.2.10",
-    "prettier": "^3.3.3",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.3"
-  },
-  "prettier": {
-    "tabWidth": 2,
-    "semi": false,
-    "singleQuote": true
+    "@vitejs/plugin-react-swc": "^3.8.1",
+    "globals": "^15.15.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "typescript": "^5.8.2",
+    "vite": "^5.4.14"
   },
   "lint-staged": {
-    "*.{ts,tsx}": "eslint --cache --fix",
-    "*.{ts,tsx,js,css,md}": "prettier --write"
-  },
-  "packageManager": "yarn@3.4.1+sha256.b51208ae422260539b3503fe5b596f4f236947d69ed1f8797f9830331a38c841"
+    "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": ["biome check --write --no-errors-on-unmatched"]
+  }
 }

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'
 import { Button, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
+import React, { useState, useEffect } from 'react'
 
-import { Api } from './types'
 import { ArgsCell, CompactArgsCell, HexCell } from './components'
 import { callToHuman } from './helper'
+import type { Api } from './types'
 
 export type DemocracyProps = {
   api: Api
@@ -88,7 +88,7 @@ const Democracy: React.FC<DemocracyProps> = ({ api, onDryRunPreimage }) => {
       canceled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [api])
 
   const columns: ColumnsType<Proposal> = [
     {

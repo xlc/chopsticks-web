@@ -1,6 +1,6 @@
+import _ from 'lodash'
 import React, { useCallback, useMemo, useState } from 'react'
 import { JSONTree } from 'react-json-tree'
-import _ from 'lodash'
 import styled from 'styled-components'
 
 export type DiffViewerProps = {
@@ -24,9 +24,9 @@ function prepareDelta(value: any) {
       if (key !== '_t') {
         if (key[0] === '_' && !value[key.substring(1)]) {
           res[key.substring(1)] = value[key]
-        } else if (value['_' + key]) {
-          res[key] = [value['_' + key][0], value[key][0]]
-        } else if (!value['_' + key] && key[0] !== '_') {
+        } else if (value[`_${key}`]) {
+          res[key] = [value[`_${key}`][0], value[key][0]]
+        } else if (!value[`_${key}`] && key[0] !== '_') {
           res[key] = value[key]
         }
       }
@@ -141,7 +141,7 @@ const MainViewer = styled.div`
   width: 80%;
 `
 
-const enum ViewMode {
+enum ViewMode {
   Events = 'events',
   Changed = 'changed',
   Unchanged = 'unchanged',
@@ -151,12 +151,9 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta, newState }) =>
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Events)
   const [partial, setPartial] = useState(null)
 
-  const handleViewModeChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setViewMode(e.target.value as ViewMode)
-    },
-    [setViewMode],
-  )
+  const handleViewModeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setViewMode(e.target.value as ViewMode)
+  }, [])
 
   const data = useMemo(() => {
     switch (viewMode) {
@@ -185,17 +182,14 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta, newState }) =>
     }
   }, [oldState, delta, newState, viewMode])
 
-  const viewPartial = useCallback(
-    (value: any) => {
-      setPartial((partial) => (_.isEqual(partial, value) ? null : value))
-    },
-    [setPartial],
-  )
+  const viewPartial = useCallback((value: any) => {
+    setPartial((partial) => (_.isEqual(partial, value) ? null : value))
+  }, [])
 
   function valueRenderer(viewPartial: any) {
-    return function (_raw: any, value: any, ...keys: any[]) {
+    return (_raw: any, value: any, ...keys: any[]) => {
       const modifyPath = keys.reverse().join('.')
-      const removePath = keys.map((x) => (Number.isInteger(parseInt(x)) ? '_' + x : x)).join('.')
+      const removePath = keys.map((x) => (Number.isInteger(Number.parseInt(x)) ? `_${x}` : x)).join('.')
       const isDelta = _.has(delta, modifyPath) || _.has(delta, removePath)
 
       function renderSpan(name: string, body: any, raw?: any) {
@@ -203,8 +197,11 @@ const DiffViewer: React.FC<DiffViewerProps> = ({ oldState, delta, newState }) =>
           <DiffSpan key={name} className={name}>
             {body}
             {_.isObjectLike(raw) ? (
-              <button onClick={() => viewPartial({ [modifyPath]: raw })}>
-                <img src="data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KDTwhLS0gVXBsb2FkZWQgdG86IFNWRyBSZXBvLCB3d3cuc3ZncmVwby5jb20sIFRyYW5zZm9ybWVkIGJ5OiBTVkcgUmVwbyBNaXhlciBUb29scyAtLT4KPHN2ZyBmaWxsPSIjMDAwMDAwIiBoZWlnaHQ9IjY0cHgiIHdpZHRoPSI2NHB4IiB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMjQyLjEzMyAyNDIuMTMzIiB4bWw6c3BhY2U9InByZXNlcnZlIiBzdHJva2U9IiMwMDAwMDAiPgoNPGcgaWQ9IlNWR1JlcG9fYmdDYXJyaWVyIiBzdHJva2Utd2lkdGg9IjAiLz4KDTxnIGlkPSJTVkdSZXBvX3RyYWNlckNhcnJpZXIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgoNPGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPiA8ZyBpZD0iWE1MSURfMjVfIj4gPHBhdGggaWQ9IlhNTElEXzI2XyIgZD0iTTg5LjI0NywxMzEuNjczbC00Ny43MzIsNDcuNzNsLTE1LjkwOS0xNS45MWMtNC4yOS00LjI5MS0xMC43NDItNS41NzItMTYuMzQ3LTMuMjUyIEMzLjY1NCwxNjIuNTYzLDAsMTY4LjAzMywwLDE3NC4xdjUzLjAzMmMwLDguMjg0LDYuNzE2LDE1LDE1LDE1bDUzLjAzMywwLjAwMWMwLjAwNy0wLjAwMSwwLjAxMi0wLjAwMSwwLjAxOSwwIGM4LjI4NSwwLDE1LTYuNzE2LDE1LTE1YzAtNC4zNzctMS44NzUtOC4zMTYtNC44NjUtMTEuMDU5bC0xNS40NTgtMTUuNDU4bDQ3LjczLTQ3LjcyOWM1Ljg1OC01Ljg1OCw1Ljg1OC0xNS4zNTUsMC0yMS4yMTMgQzEwNC42MDMsMTI1LjgxNSw5NS4xMDQsMTI1LjgxNiw4OS4yNDcsMTMxLjY3M3oiLz4gPHBhdGggaWQ9IlhNTElEXzI4XyIgZD0iTTIyNy4xMzMsMEgxNzQuMWMtNi4wNjcsMC0xMS41MzYsMy42NTUtMTMuODU4LDkuMjZjLTIuMzIxLDUuNjA1LTEuMDM4LDEyLjA1NywzLjI1MiwxNi4zNDdsMTUuOTExLDE1LjkxMSBsLTQ3LjcyOSw0Ny43M2MtNS44NTgsNS44NTgtNS44NTgsMTUuMzU1LDAsMjEuMjEzYzIuOTI5LDIuOTI5LDYuNzY4LDQuMzkzLDEwLjYwNiw0LjM5M2MzLjgzOSwwLDcuNjc4LTEuNDY0LDEwLjYwNi00LjM5NCBsNDcuNzMtNDcuNzNsMTUuOTA5LDE1LjkxYzIuODY5LDIuODcsNi43MDYsNC4zOTQsMTAuNjA5LDQuMzk0YzEuOTMzLDAsMy44ODItMC4zNzMsNS43MzctMS4xNDIgYzUuNjA1LTIuMzIyLDkuMjYtNy43OTIsOS4yNi0xMy44NThWMTVDMjQyLjEzMyw2LjcxNiwyMzUuNDE3LDAsMjI3LjEzMywweiIvPiA8L2c+IDwvZz4KDTwvc3ZnPg==" />
+              <button type="button" onClick={() => viewPartial({ [modifyPath]: raw })}>
+                <img
+                  alt=""
+                  src="data:image/svg+xml;base64,PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KDTwhLS0gVXBsb2FkZWQgdG86IFNWRyBSZXBvLCB3d3cuc3ZncmVwby5jb20sIFRyYW5zZm9ybWVkIGJ5OiBTVkcgUmVwbyBNaXhlciBUb29scyAtLT4KPHN2ZyBmaWxsPSIjMDAwMDAwIiBoZWlnaHQ9IjY0cHgiIHdpZHRoPSI2NHB4IiB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMjQyLjEzMyAyNDIuMTMzIiB4bWw6c3BhY2U9InByZXNlcnZlIiBzdHJva2U9IiMwMDAwMDAiPgoNPGcgaWQ9IlNWR1JlcG9fYmdDYXJyaWVyIiBzdHJva2Utd2lkdGg9IjAiLz4KDTxnIGlkPSJTVkdSZXBvX3RyYWNlckNhcnJpZXIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgoNPGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPiA8ZyBpZD0iWE1MSURfMjVfIj4gPHBhdGggaWQ9IlhNTElEXzI2XyIgZD0iTTg5LjI0NywxMzEuNjczbC00Ny43MzIsNDcuNzNsLTE1LjkwOS0xNS45MWMtNC4yOS00LjI5MS0xMC43NDItNS41NzItMTYuMzQ3LTMuMjUyIEMzLjY1NCwxNjIuNTYzLDAsMTY4LjAzMywwLDE3NC4xdjUzLjAzMmMwLDguMjg0LDYuNzE2LDE1LDE1LDE1bDUzLjAzMywwLjAwMWMwLjAwNy0wLjAwMSwwLjAxMi0wLjAwMSwwLjAxOSwwIGM4LjI4NSwwLDE1LTYuNzE2LDE1LTE1YzAtNC4zNzctMS44NzUtOC4zMTYtNC44NjUtMTEuMDU5bC0xNS40NTgtMTUuNDU4bDQ3LjczLTQ3LjcyOWM1Ljg1OC01Ljg1OCw1Ljg1OC0xNS4zNTUsMC0yMS4yMTMgQzEwNC42MDMsMTI1LjgxNSw5NS4xMDQsMTI1LjgxNiw4OS4yNDcsMTMxLjY3M3oiLz4gPHBhdGggaWQ9IlhNTElEXzI4XyIgZD0iTTIyNy4xMzMsMEgxNzQuMWMtNi4wNjcsMC0xMS41MzYsMy42NTUtMTMuODU4LDkuMjZjLTIuMzIxLDUuNjA1LTEuMDM4LDEyLjA1NywzLjI1MiwxNi4zNDdsMTUuOTExLDE1LjkxMSBsLTQ3LjcyOSw0Ny43M2MtNS44NTgsNS44NTgtNS44NTgsMTUuMzU1LDAsMjEuMjEzYzIuOTI5LDIuOTI5LDYuNzY4LDQuMzkzLDEwLjYwNiw0LjM5M2MzLjgzOSwwLDcuNjc4LTEuNDY0LDEwLjYwNi00LjM5NCBsNDcuNzMtNDcuNzNsMTUuOTA5LDE1LjkxYzIuODY5LDIuODcsNi43MDYsNC4zOTQsMTAuNjA5LDQuMzk0YzEuOTMzLDAsMy44ODItMC4zNzMsNS43MzctMS4xNDIgYzUuNjA1LTIuMzIyLDkuMjYtNy43OTIsOS4yNi0xMy44NThWMTVDMjQyLjEzMyw2LjcxNiwyMzUuNDE3LDAsMjI3LjEzMywweiIvPiA8L2c+IDwvZz4KDTwvc3ZnPg=="
+                />
               </button>
             ) : null}
           </DiffSpan>

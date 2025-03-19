@@ -1,14 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Button, Divider, Form, Input, Spin, Typography, FormProps } from 'antd'
-import { setStorage, setup, ChopsticksProvider } from '@acala-network/chopsticks-core'
+import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
 import { IdbDatabase } from '@acala-network/chopsticks-db/browser'
 import { ApiPromise } from '@polkadot/api'
+import { Button, Divider, Form, type FormProps, Input, Spin, Typography } from 'antd'
+import React, { useCallback, useEffect, useState } from 'react'
 
-import { Api } from './types'
-import DiffViewer from './DiffViewer'
 import { compactAddLength } from '@polkadot/util'
+import DiffViewer from './DiffViewer'
 import { ArgsCell } from './components'
 import { callToHuman, decodeStorageDiff } from './helper'
+import type { Api } from './types'
 
 export type DryRunProps = {
   api: Api
@@ -200,7 +200,7 @@ const DryRun: React.FC<DryRunProps> = ({ api, endpoint, preimage: defaultPreimag
         }
       }
     },
-    [api, setCall],
+    [api],
   )
 
   return (

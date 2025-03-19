@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'
 import { Button, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
+import React, { useState, useEffect } from 'react'
 
-import { Api } from './types'
 import { ArgsCell, CompactArgsCell, HexCell } from './components'
 import { callToHuman } from './helper'
+import type { Api } from './types'
 
 export type CollectivesProps = {
   api: Api
@@ -77,7 +77,7 @@ const Collectives: React.FC<CollectivesProps> = ({ api, onDryRunPreimage, collec
       canceled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled])
+  }, [enabled, api, collectivesPallet])
 
   const columns: ColumnsType<Proposal> = [
     {

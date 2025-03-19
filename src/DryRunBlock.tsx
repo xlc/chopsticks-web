@@ -1,12 +1,12 @@
-import React, { useCallback, useState } from 'react'
-import { Button, Divider, Form, Input, Space, Spin, Typography } from 'antd'
-import { setup, ChopsticksProvider } from '@acala-network/chopsticks-core'
+import { ChopsticksProvider, setup } from '@acala-network/chopsticks-core'
 import { IdbDatabase } from '@acala-network/chopsticks-db/browser'
 import { ApiPromise } from '@polkadot/api'
+import { Button, Divider, Form, Input, Space, Spin, Typography } from 'antd'
+import React, { useCallback, useState } from 'react'
 
-import { Api } from './types'
 import DiffViewer from './DiffViewer'
 import { decodeStorageDiff } from './helper'
+import type { Api } from './types'
 
 export type DryRunBlockProps = {
   api: Api

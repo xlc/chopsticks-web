@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { ApiPromise, WsProvider } from '@polkadot/api'
 import useLocalStorage from '@rehooks/local-storage'
 import { AutoComplete, Button, Form, Typography } from 'antd'
-import { ApiPromise, WsProvider } from '@polkadot/api'
 import _ from 'lodash'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Api } from './types'
+import type { Api } from './types'
 
 const endpoints = [
   'wss://rpc.polkadot.io',
@@ -38,7 +38,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
 
   const endpointOptions = useMemo(() => {
     const endpointOptions = new Set(endpoints)
-    if (endpoint != undefined) {
+    if (endpoint !== undefined) {
       endpointOptions.add(endpoint)
     }
     return Array.from(endpointOptions).map((endpoint) => ({ value: endpoint }))
@@ -47,16 +47,15 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
   const blockHeightValidator = useCallback(async (_rule: any, value: string) => {
     if (value === 'latest' || value === 'last') {
       return
-    } else {
-      const blockHeight = parseInt(value)
-      if (isNaN(blockHeight)) {
-        return 'Not a valid block height'
-      } else if (blockHeight < 0) {
-        return 'Block height must be greater than or equal to 0'
-      } else {
-        return
-      }
     }
+    const blockHeight = Number.parseInt(value)
+    if (Number.isNaN(blockHeight)) {
+      return 'Not a valid block height'
+    }
+    if (blockHeight < 0) {
+      return 'Block height must be greater than or equal to 0'
+    }
+    return
   }, [])
 
   const onFinish = useCallback(
@@ -128,6 +127,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
     }
   }, [apiAt, endpoint, onConnect])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: run once only
   useEffect(() => {
     let initialEndpoint = endpoint ?? endpoints[0]
     let initialBlockHeight = blockHeight ?? 'latest'
@@ -149,7 +149,6 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
       endpoint: initialEndpoint,
       blockHeight: initialBlockHeight,
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

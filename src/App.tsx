@@ -1,16 +1,16 @@
+import { Collapse, type CollapseProps, Spin } from 'antd'
 import { useCallback, useState } from 'react'
-import { Collapse, CollapseProps, Spin } from 'antd'
 
 import type { Api } from './types'
 
-import Settings from './Settings'
-import Preimages from './Preimages'
-import DryRun from './DryRun'
-import Referenda from './Referenda'
 import Collectives from './Collectives'
 import Democracy from './Democracy'
-import StateCall from './StateCall'
+import DryRun from './DryRun'
 import DryRunBlock from './DryRunBlock'
+import Preimages from './Preimages'
+import Referenda from './Referenda'
+import Settings from './Settings'
+import StateCall from './StateCall'
 
 function App() {
   const [api, setApi] = useState<Api>()
@@ -18,13 +18,10 @@ function App() {
   const [activeKey, setActiveKey] = useState<string[]>(['settings'])
   const [preimage, setPreimage] = useState<{ hex: string; origin: any }>()
 
-  const onConnect = useCallback(
-    (api?: Api, endpoint?: string) => {
-      setApi(api)
-      setEndpoint(endpoint)
-    },
-    [setApi, setEndpoint],
-  )
+  const onConnect = useCallback((api?: Api, endpoint?: string) => {
+    setApi(api)
+    setEndpoint(endpoint)
+  }, [])
 
   const onDryRunPreimage = useCallback(
     (hex: string, origin?: any) => {
@@ -35,15 +32,12 @@ function App() {
       setActiveKey(newKeys)
       setPreimage({ hex, origin })
     },
-    [activeKey, setActiveKey],
+    [activeKey],
   )
 
-  const onChangeActiveKey = useCallback(
-    (activeKey: string | string[]) => {
-      setActiveKey(Array.isArray(activeKey) ? activeKey : [activeKey])
-    },
-    [setActiveKey],
-  )
+  const onChangeActiveKey = useCallback((activeKey: string | string[]) => {
+    setActiveKey(Array.isArray(activeKey) ? activeKey : [activeKey])
+  }, [])
 
   const items: CollapseProps['items'] = [
     {
@@ -74,12 +68,11 @@ function App() {
           {
             key: 'fellowship-referenda',
             label: 'Fellowship Referenda',
-            children:
-              api && api.query.fellowshipReferenda ? (
-                <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="fellowshipReferenda" />
-              ) : (
-                <Spin spinning={true} />
-              ),
+            children: api?.query.fellowshipReferenda ? (
+              <Referenda api={api} onDryRunPreimage={onDryRunPreimage} referendaPallet="fellowshipReferenda" />
+            ) : (
+              <Spin spinning={true} />
+            ),
           },
         ]
       : []),

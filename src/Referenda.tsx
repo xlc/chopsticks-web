@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'
-import _ from 'lodash'
 import { Button, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
+import _ from 'lodash'
+import React, { useState, useEffect } from 'react'
 
-import { Api } from './types'
 import { ArgsCell, CompactArgsCell, HexCell } from './components'
 import { callToHuman } from './helper'
+import type { Api } from './types'
 
 export type ReferendaProps = {
   api: Api
@@ -111,7 +111,7 @@ const Referenda: React.FC<ReferendaProps> = ({ api, onDryRunPreimage, referendaP
       canceled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled])
+  }, [enabled, api, referendaPallet])
 
   const columns: ColumnsType<Referendum> = [
     {
