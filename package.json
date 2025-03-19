@@ -12,10 +12,10 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@acala-network/chopsticks-core": "0.14.1",
+    "@acala-network/chopsticks-core": "1.0.3",
     "@acala-network/chopsticks-db": "0.14.1",
-    "@polkadot/api": "12.4.2",
-    "@polkadot/util": "13.0.2",
+    "@polkadot/api": "15.8.1",
+    "@polkadot/util": "13.4.3",
     "@rehooks/local-storage": "^2.4.5",
     "antd": "^5.20.5",
     "jsondiffpatch": "0.6.0",
