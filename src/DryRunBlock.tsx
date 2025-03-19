@@ -123,7 +123,14 @@ const DryRunBlock: React.FC<DryRunBlockProps> = ({ api, endpoint }) => {
               <>
                 {fields.map((field, index) => (
                   <Form.Item key={field.key} required>
-                    <Input style={{ width: '85%' }} required />
+                    <Space.Compact block>
+                      <Form.Item name={[field.name, 'sendAt']} noStyle required>
+                        <Input type="number" style={{ width: '15%' }} placeholder="SendAt" required />
+                      </Form.Item>
+                      <Form.Item name={[field.name, 'message']} noStyle required>
+                        <Input style={{ width: '85%' }} placeholder="Encoded message" required />
+                      </Form.Item>
+                    </Space.Compact>
                     <Button type="link" onClick={() => remove(index)}>
                       Remove
                     </Button>
