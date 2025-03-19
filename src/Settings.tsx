@@ -38,7 +38,7 @@ const Settings: React.FC<SettingsProps> = ({ onConnect }) => {
 
   const endpointOptions = useMemo(() => {
     const endpointOptions = new Set(endpoints)
-    if (endpoint !== undefined) {
+    if (endpoint != null) {
       endpointOptions.add(endpoint)
     }
     return Array.from(endpointOptions).map((endpoint) => ({ value: endpoint }))
