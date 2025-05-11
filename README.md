@@ -28,3 +28,11 @@ export default {
 - Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
 - Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
 - Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+
+# Make `bun dev` work
+
+```bash
+cp ./node_modules/@acala-network/chopsticks-core/dist/esm/wasm-executor/browser-wasm-executor.js ./node_modules/.vite/deps/
+```
+
+This workaround vite issue that cannot find worker script in dev.
